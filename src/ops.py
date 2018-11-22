@@ -10,12 +10,15 @@ def conv3d(input, output_chn, kernel_size, stride, use_bias=False, name='conv'):
                             padding='same', data_format='channels_last',
                             kernel_initializer=tf.truncated_normal_initializer(0.0, 0.01),
                             kernel_regularizer=slim.l2_regularizer(0.0005), use_bias=use_bias, name=name)
-
+def fractal_conv3d(input, output_chn, kernel_size, stride, use_bias=False):#对于fractal来说，不需要重用权重
+    return tf.layers.conv3d(inputs=input, filters=output_chn, kernel_size=kernel_size, strides=stride,
+                            padding='same', data_format='channels_last',
+                            kernel_initializer=tf.truncated_normal_initializer(0.0, 0.01),
+                            kernel_regularizer=slim.l2_regularizer(0.0005), use_bias=use_bias)
 
 def conv_bn_relu(input, output_chn, kernel_size, stride, use_bias, is_training, name):
     with tf.variable_scope(name):
         conv = conv3d(input, output_chn, kernel_size, stride, use_bias, name='conv')
-        # with tf.device("/cpu:0"):
         bn = tf.contrib.layers.batch_norm(conv, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True, is_training=is_training, scope="batch_norm")
         relu = tf.nn.relu(bn, name='relu')
     return relu

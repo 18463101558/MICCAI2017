@@ -271,8 +271,94 @@ def remove_minor_cc(vol_data, rej_ratio, rename_map):
 
     return rem_vol
 
+#Stage*BLOCKS*Columns 主要用作生成全局路径
+def produce_global_path_list(StageNum,Blocks,Columns):
+    STAGE_LIST=[]
+    for i in range (0,StageNum):
+        BLOCK_LIST=[]
+        for J in range(0, Blocks):
+            ONE_BLOCK = np.zeros(Columns)  # 对应柱的数量
+            ONE_BLOCK[np.random.randint(0, Columns)] = 1.0  # 为global path选中唯一的一条路径
+            BLOCK_LIST.append(ONE_BLOCK)
+        STAGE_LIST.append(BLOCK_LIST)
+    return STAGE_LIST
 
+#StageNum*BLOCKS*Columns 用于产生全局路径
+def produce_global_path_list(StageNum,Blocks,Columns):
+    STAGE_LIST=[]
+    for i in range (0,StageNum):
+        BLOCK_LIST=[]
+        for j in range(0, Blocks):
+            ONE_BLOCK = np.zeros(Columns)  # 对应柱的数量
+            ONE_BLOCK[np.random.randint(0, Columns)] = 1  # 为global path选中唯一的一条路径
+            BLOCK_LIST.append(ONE_BLOCK)
+        STAGE_LIST.append(BLOCK_LIST)
+    return STAGE_LIST
+#
 
+#用于训练时随机选择是否进入全局路径，StageNum*Blocks threshold越大，那么选中全局路径的可能性越大
+def train_is_global_path_list(StageNum,Blocks,threshold=5):
+    STAGE_LIST = []
+    for i in range(0, StageNum):
+        BLOCK_LIST = []
+        for j in range(0, Blocks):
+            if np.random.randint(0, 10)>=threshold:
+                BLOCK_LIST.append(0.0)
+            else:
+                BLOCK_LIST.append(1.0)
+        STAGE_LIST.append(BLOCK_LIST)
+    return STAGE_LIST
+#测试时不会进入全局路径，直接append 0.0即可
+def test_is_global_path_list(StageNum,Blocks):
+    STAGE_LIST = []
+    for i in range(0, StageNum):
+        BLOCK_LIST = []
+        for j in range(0, Blocks):
+           BLOCK_LIST.append(0.0)
+        STAGE_LIST.append(BLOCK_LIST)
+    return STAGE_LIST
 
+#以0.5的概率选中任何一条路径
+def train_local_path_list(StageNum,Blocks,Columns,threshold=5):
+    STAGE_LIST = []
+    for i in range(0, StageNum):
+        BLOCK_LIST = []
+        for j in range(0, Blocks):
+            ROW_LIST=[]
+            for k in range(0,2**(Columns-1)):
+                ONE_PATH=[]
+                for l in range(Columns):
+                    if np.random.randint(0, 10)>=threshold:
+                        ONE_PATH.append(0.0)
+                    else:
+                        ONE_PATH.append(1.0)
+                ROW_LIST.append(ONE_PATH)#每一行对应一条局部路径
+            BLOCK_LIST.append(ROW_LIST)#一个block对应多行
+        STAGE_LIST.append(BLOCK_LIST)#一个stage可以对应多个block
+    return STAGE_LIST
 
-
+#所有路径都被选中
+def test_local_path_list(StageNum,Blocks,Columns,threshold=5):
+    STAGE_LIST = []
+    for i in range(0, StageNum):
+        BLOCK_LIST = []
+        for j in range(0, Blocks):
+            ROW_LIST=[]
+            for k in range(0,2**(Columns-1)):
+                ONE_PATH=[]
+                for l in range(Columns):
+                        ONE_PATH.append(1.0)
+                ROW_LIST.append(ONE_PATH)#每一行对应一条局部路径
+            BLOCK_LIST.append(ROW_LIST)#一个block对应多行
+        STAGE_LIST.append(BLOCK_LIST)#一个stage可以对应多个block
+    return STAGE_LIST
+def get_train_path_list(StageNum,Blocks,Columns):
+    is_global_path=train_is_global_path_list(StageNum, Blocks)
+    global_path_list=produce_global_path_list(StageNum,Blocks,Columns)
+    local_path_list=train_local_path_list(StageNum,Blocks,Columns)
+    return is_global_path, global_path_list, local_path_list
+def get_test_path_list(StageNum,Blocks,Columns):
+    is_global_path=test_is_global_path_list(StageNum, Blocks)
+    global_path_list=produce_global_path_list(StageNum,Blocks,Columns)
+    local_path_list=test_local_path_list(StageNum,Blocks,Columns)
+    return is_global_path, global_path_list, local_path_list

@@ -26,7 +26,6 @@ def main(_):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95, allow_growth=True)
     with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True)) as sess:
         model = unet_3D_xy(sess, param_set)#定义一个模型类，并且把参数传递给它，这个时候网络骨架搭建完毕
-
         if param_set['phase'] == 'train':
             try:
                 os.remove( "train.log" )
