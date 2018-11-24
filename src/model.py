@@ -33,7 +33,7 @@ class unet_3D_xy(object):
         self.rename_map = param_set['rename_map']
         self.rename_map = [int(s) for s in self.rename_map.split(',')]
         self.Blocks=1
-        self.Columns=4
+        self.Columns=3
         self.Stages=4
         # build model graph
         self.build_model()#在这里开始建立网络
@@ -298,6 +298,7 @@ class unet_3D_xy(object):
         loss_log = open("loss.txt", "w")
 
         for epoch in np.arange(self.epoch):
+            self.sess.graph.finalize()#锁定图，使之只能读不能写，避免后面添加节点导致出错
             start_time = time.time()
             # 获取训练数据 其实这是随机去体数据中裁剪
 
@@ -305,7 +306,7 @@ class unet_3D_xy(object):
             # 获取验证数据
             batch_val_img, batch_val_label = get_batch_patches(img_clec, label_clec, self.inputI_size, self.batch_size, chn=1, flip_flag=True, rot_flag=True)
             #获取训练路径掩码
-            is_global_path, global_path_list, local_path_list=get_train_path_list(self.StageNum,self.Blocks,self.Columns)
+            is_global_path, global_path_list, local_path_list=get_train_path_list(self.Stages,self.Blocks,self.Columns)
 
             # Update 3D U-net 获取损失值
             _, cur_train_loss = self.sess.run([u_optimizer, self.total_loss], feed_dict={self.input_I: batch_img,
@@ -313,10 +314,10 @@ class unet_3D_xy(object):
                                               self.global_path_list:global_path_list,self.local_path_list:local_path_list})
             # self.log_writer.add_summary(summary_str, counter)
 
-            # 取出diceloss,参见https://blog.csdn.net/yeqiang19910412/article/details/78651939
-            #cur_valid_loss = self.total_loss.eval({self.input_I: batch_val_img, self.input_gt: batch_val_label})
-            #获取该图所对应的label
-            #cube_label = self.sess.run(self.pred_label, feed_dict={self.input_I: batch_val_img})
+            # #取出diceloss,参见https://blog.csdn.net/yeqiang19910412/article/details/78651939
+            # cur_valid_loss = self.total_loss.eval({self.input_I: batch_val_img, self.input_gt: batch_val_label})
+            # #获取该图所对应的label
+            # cube_label = self.sess.run(self.pred_label, feed_dict={self.input_I: batch_val_img})
             # # 计算dice值
             # dice_c = []
             # for c in range(self.output_chn):
@@ -325,12 +326,13 @@ class unet_3D_xy(object):
             #     dice_c.append((2.0*ints)/union)
             # dice_c = np.around( dice_c, decimals=3 )
             # print(dice_c)
-
+            #
             counter += 1
-            print("Epoch: [%2d] ：....time: %4.4f........................train_loss: %.8f........................valid_loss: %.8f" % (epoch, time.time() - start_time, cur_train_loss, cur_valid_loss))
-            #打印当前训练值
-            loss_log.write( "%s   %s    %s   %s\n" % (counter,cur_train_loss, cur_valid_loss, dice_c) )  # 把loss给保留下来
+            print("Epoch: [%2d] ：....time: %4.4f........................train_loss: %.8f" % (epoch, time.time() - start_time, cur_train_loss))
+            # #打印当前训练值
+            # loss_log.write( "%s   %s    %s   %s\n" % (counter,cur_train_loss, cur_valid_loss, dice_c) )  # 把loss给保留下来
             if np.mod(counter, self.save_intval) == 0:#隔着多少个epoch采取一次保存策略
+
                 self.test(counter,"train.log")
                 self.save_chkpoint( self.chkpoint_dir, self.model_name, counter )
         loss_log.close()
@@ -380,7 +382,7 @@ class unet_3D_xy(object):
                     print("预测第%s个ct图像第%s立方块"%(k,c))
                 #获取单个立方块的预测结果
                 # 获取测试路径掩码
-                is_global_path, global_path_list, local_path_list = get_test_path_list(self.StageNum, self.Blocks,
+                is_global_path, global_path_list, local_path_list = get_test_path_list(self.Stages, self.Blocks,
                                                                                         self.Columns)
                 cube_label = self.sess.run(self.pred_label, feed_dict={self.input_I: cube2test_norm,self.is_global_path:is_global_path,
                                               self.global_path_list:global_path_list,self.local_path_list:local_path_list})
