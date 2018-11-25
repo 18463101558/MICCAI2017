@@ -2,9 +2,6 @@ from __future__ import division
 import numpy as np
 import nibabel as nib
 import copy
-import cv2
-import scipy
-import scipy.ndimage
 from scipy.ndimage import rotate
 from skimage.transform import resize
 from scipy.ndimage import measurements

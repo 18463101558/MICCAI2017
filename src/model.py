@@ -8,6 +8,7 @@ from ops import *
 from utils import *
 from seg_eval import *
 from fractalnet import fractal_net
+
 class unet_3D_xy(object):
     """ Implementation of 3D U-net"""
     def __init__(self, sess, param_set):
@@ -32,9 +33,9 @@ class unet_3D_xy(object):
         self.step = param_set['step']
         self.rename_map = param_set['rename_map']
         self.rename_map = [int(s) for s in self.rename_map.split(',')]
-        self.Blocks=1
-        self.Columns=3
-        self.Stages=4
+        self.Blocks=param_set['Blocks']
+        self.Columns=param_set['Columns']
+        self.Stages=param_set['Stages']
         # build model graph
         self.build_model()#在这里开始建立网络
 
@@ -195,6 +196,7 @@ class unet_3D_xy(object):
         concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')
         deconv1_2 = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv1_2')
+        deconv1_2=fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks, self.Columns)(deconv1_2 )
         #print("deconv1_2", deconv1_2.shape) (1, 12, 12, 12, 256)
         deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')#这个家伙会把通道数量增加
         #print("deconv2_1", deconv2_1.shape) deconv2_1 (1, 24, 24, 24, 256)
@@ -202,6 +204,8 @@ class unet_3D_xy(object):
         concat_2 = tf.concat([deconv2_1, conv3_2], axis=concat_dim, name='concat_2')
         deconv2_2 = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv2_2')
+        deconv2_2= fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,
+                                self.Columns)(deconv2_2)
         #print(" deconv2_2", deconv2_2.shape) deconv2_2 (1, 24, 24, 24, 128)
         deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')
         #print("deconv3_1", deconv3_1.shape) deconv3_1 (1, 48, 48, 48, 128)
@@ -209,6 +213,7 @@ class unet_3D_xy(object):
         concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
         deconv3_2 = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv3_2')
+        deconv3_2 = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,self.Columns)(deconv3_2)
         #print("deconv3_2", deconv3_2.shape) deconv3_2 (1, 48, 48, 48, 64)
         deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')
         #print("deconv4_1", deconv4_1.shape)deconv4_1 (1, 96, 96, 96, 64)
@@ -231,11 +236,11 @@ class unet_3D_xy(object):
         aux0_deconv_1 = Deconv3d(input=aux0_conv, output_chn=self.output_chn, name='aux0_deconv_1')
         #print("aux0_deconv_1", aux0_deconv_1.shape) aux0_deconv_1 (1, 24, 24, 24, 8)
         aux0_deconv_2 = Deconv3d(input=aux0_deconv_1, output_chn=self.output_chn, name='aux0_deconv_2')
-        print("aux0_deconv_2", aux0_deconv_2.shape) #aux0_deconv_2 (1, 48, 48, 48, 8)
-        aux0_pro = Deconv3d(input= aux0_deconv_2 , output_chn=self.output_chn, name='aux0_pro')
-        aux0_prob = fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks,
-                                      self.Columns)(aux0_pro)
-        print("aux0_prob", aux0_prob.shape) #aux0_prob (1, 96, 96, 96, 8)
+        #print("aux0_deconv_2", aux0_deconv_2.shape) #aux0_deconv_2 (1, 48, 48, 48, 8)
+        aux0_prob = Deconv3d(input= aux0_deconv_2 , output_chn=self.output_chn, name='aux0_prob')
+        # aux0_prob = fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks,
+        #                               self.Columns)(aux0_pro)
+        #print("aux0_prob", aux0_prob.shape) #aux0_prob (1, 96, 96, 96, 8)
 
         # auxiliary prediction 1
         aux1_conv = conv3d(input=deconv2_2, output_chn=self.output_chn, kernel_size=1, stride=1, use_bias=True,
@@ -243,19 +248,19 @@ class unet_3D_xy(object):
         #print("aux1_conv", aux1_conv.shape) aux1_conv (1, 24, 24, 24, 8)
         aux1_deconv_1 = Deconv3d(input=aux1_conv, output_chn=self.output_chn, name='aux1_deconv_1')
         #print("aux1_deconv_1", aux1_deconv_1.shape) aux1_deconv_1 (1, 48, 48, 48, 8)
-        aux1_pro = Deconv3d(input=aux1_deconv_1, output_chn=self.output_chn, name='aux1_pro')
-        aux1_prob = fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,
-                                      self.Columns)(aux1_pro)
+        aux1_prob = Deconv3d(input=aux1_deconv_1, output_chn=self.output_chn, name='aux1_prob')
+        # aux1_prob = fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,
+        #                               self.Columns)(aux1_pro)
         #print("aux1_prob", aux1_prob.shape) aux1_prob (1, 96, 96, 96, 8)
 
         # auxiliary prediction 2
         aux2_conv = conv3d(input=deconv3_2, output_chn=self.output_chn, kernel_size=1, stride=1, use_bias=True,
                            name='aux2_conv')
         #print("aux2_conv", aux2_conv.shape) aux2_conv (1, 48, 48, 48, 8)
-        aux2_pro = Deconv3d(input=aux2_conv, output_chn=self.output_chn, name='aux2_pro')
+        aux2_prob = Deconv3d(input=aux2_conv, output_chn=self.output_chn, name='aux2_prob')
         #print("aux2_prob", aux2_prob.shape) aux2_prob (1, 96, 96, 96, 8)
-        aux2_prob = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,
-                                      self.Columns)(aux2_pro)
+        # aux2_prob = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,
+        #                               self.Columns)(aux2_pro)
 
         soft_prob = tf.nn.softmax(pred_prob, name='pred_soft')
         pred_label = tf.argmax(soft_prob, axis=4, name='argmax')

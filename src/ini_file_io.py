@@ -1,8 +1,9 @@
 #!/usr/bin/python
 import configparser
 
+
 def load_train_ini(ini_file):
-    # initialize 获取参数信息
+    # initialize
     cf = configparser.ConfigParser()
     cf.read(ini_file)
     # dictionary list
@@ -29,7 +30,10 @@ def load_train_ini(ini_file):
                           testdata_dir  = cf.get(s[d], "testdata_dir"),
                           labeling_dir  = cf.get(s[d], "labeling_dir"),
                           ovlp_ita      = cf.getint(s[d], "ovlp_ita"),
-                          step = cf.getint(s[d],"step"))
+                          step=cf.getint(s[d], "step"),
+                          Stages= cf.getint(s[d],"Stages"),
+                          Blocks=cf.getint(s[d], "Blocks"),
+                          Columns=cf.getint(s[d], "Columns") )
         # add to list
         param_sections.append(level_dict)
 

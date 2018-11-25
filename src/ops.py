@@ -34,6 +34,17 @@ def Deconv3d(input, output_chn, name):
                                   strides=[1, 2, 2, 2, 1], padding="SAME", name=name)
     return conv
 
+def Unsample(input, output_chn, name):
+    batch, in_depth, in_height, in_width, in_channels = [int(d) for d in input.get_shape()]
+    base=input.shape[-2]
+    data=96/int(base)
+    print("base shape", data)
+    filter = tf.get_variable(name+"/filter", shape=[4, 4, 4, output_chn, in_channels], dtype=tf.float32,
+                             initializer=tf.random_normal_initializer(0, 0.01), regularizer=slim.l2_regularizer(0.0005))
+
+    conv = tf.nn.conv3d_transpose(value=input, filter=filter, output_shape=[batch, 96, 96, 96, output_chn],
+                                  strides=[1,data,data,data, 1], padding="SAME", name=name)
+    return conv
 
 def deconv_bn_relu(input, output_chn, is_training, name):
     with tf.variable_scope(name):

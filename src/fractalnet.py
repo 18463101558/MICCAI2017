@@ -41,7 +41,7 @@ def get_join_layer(row,mask,is_global_path,global_path_list,local_path_list,inpu
 
 def fractal_conv():
     def f(prev):
-        conv =  fractal_conv3d(input=prev, output_chn=8, kernel_size=3, stride=1, use_bias=False)
+        conv =  fractal_conv3d(input=prev, output_chn=prev.shape[-1], kernel_size=3, stride=1, use_bias=False)
         dropout = None
         if dropout:
             conv = tf.nn.dropout( conv, dropout)
@@ -62,12 +62,17 @@ def fractal_block(Columns,is_global_path,global_path_list,local_path_list):
                     t_col = columns[col]
                     t_col.append(fractal_conv()(t_col[-1]))  # 执行对应的卷积，注意columns外面本来就有一个中括号，所以这里相当于是columns[col]再串联了一下
                     t_row.append(col)#t_row代表合并最后一层
-
+                #     print("1",end=' ')
+                # else:
+                #     print("0", end=' ')
+            #print()
             merging=[]
             mask=[]
             if len(t_row) > 1:#注意不需要合并的在if这里就过滤掉了
+                #print("merging!")
                 for i in range(Columns):
                     if i in t_row:
+
                         mask.append(1)
                         merging.append(columns[i][-1])#这一个-1有点意思，是因为这里 [[z] for _ in range(c)]，z外面有两个中括号，所以取出来的也就是最后面一层的结果
                     else:
@@ -77,6 +82,7 @@ def fractal_block(Columns,is_global_path,global_path_list,local_path_list):
                 for i in t_row:
                     columns[i].append(merged)#把合并好的那个贴到最后面
         return columns[0][-1]#当然是选择返回最后一个值啦
+    #print("结束一个block")
     return f
 
 def fractal_net(is_global_path_list,global_path_list,local_path_list,Blocks,Columns):
