@@ -194,26 +194,30 @@ class unet_3D_xy(object):
         #print("deconv1_1", deconv1_1.shape)(1, 12, 12, 12, 512)
 
         concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')
-        deconv1_2 = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,
+        deconv1_2_in = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv1_2')
-        deconv1_2=fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks, self.Columns)(deconv1_2 )
+        deconv1_2_frac=fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks, self.Columns)(deconv1_2_in )
+        deconv1_2=deconv1_2_in+deconv1_2_frac
         #print("deconv1_2", deconv1_2.shape) (1, 12, 12, 12, 256)
         deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')#这个家伙会把通道数量增加
         #print("deconv2_1", deconv2_1.shape) deconv2_1 (1, 24, 24, 24, 256)
 
         concat_2 = tf.concat([deconv2_1, conv3_2], axis=concat_dim, name='concat_2')
-        deconv2_2 = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,
+        deconv2_2_in = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv2_2')
-        deconv2_2= fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,
-                                self.Columns)(deconv2_2)
+        deconv2_2_frac= fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,
+                                self.Columns)(deconv2_2_in)
+        deconv2_2=deconv2_2_in+deconv2_2_frac
+
         #print(" deconv2_2", deconv2_2.shape) deconv2_2 (1, 24, 24, 24, 128)
         deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')
         #print("deconv3_1", deconv3_1.shape) deconv3_1 (1, 48, 48, 48, 128)
 
         concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
-        deconv3_2 = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False,
+        deconv3_2_in = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False,
                                  is_training=phase_flag, name='deconv3_2')
-        deconv3_2 = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,self.Columns)(deconv3_2)
+        deconv3_2_frac = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,self.Columns)(deconv3_2_in)
+        deconv3_2=deconv3_2_in +deconv3_2_frac
         #print("deconv3_2", deconv3_2.shape) deconv3_2 (1, 48, 48, 48, 64)
         deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')
         #print("deconv4_1", deconv4_1.shape)deconv4_1 (1, 96, 96, 96, 64)
@@ -225,7 +229,8 @@ class unet_3D_xy(object):
         pre_pro = conv3d(input=deconv4_2, output_chn=self.output_chn, kernel_size=1, stride=1, use_bias=True,
                            name='pre_pro')
 
-        pred_prob = fractal_net(is_global_path_list[3],global_path_list[3],local_path_list[3],self.Blocks,self.Columns)(pre_pro)
+        pred_frac = fractal_net(is_global_path_list[3],global_path_list[3],local_path_list[3],self.Blocks,self.Columns)(pre_pro)
+        pred_prob= pred_frac+pre_pro
         #print("pre_prob", pre_prob.shape) pred_prob (1, 96, 96, 96, 8) 注意在这里生成了最终预测
 
         # ======================用于预测输出=============================
