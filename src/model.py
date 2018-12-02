@@ -237,7 +237,7 @@ class unet_3D_xy(object):
         self.sess.run(init_op)
 
         # 初始化C3D model对应的权重  也就是conv1，conv2，conv3a，conv3b，conv4a和conv4b的权重，用作初始化
-        #self.initialize_finetune()
+        self.initialize_finetune()
 
         # save .log
         self.log_writer = tf.summary.FileWriter("./logs", self.sess.graph)
@@ -260,9 +260,9 @@ class unet_3D_xy(object):
 
         # temporary file to save loss
         loss_log = open("loss.txt", "w")
-
+        self.sess.graph.finalize()  # 锁定图，使之只能读不能写，避免后面添加节点导致出错
         for epoch in np.arange(self.epoch):
-            self.sess.graph.finalize()#锁定图，使之只能读不能写，避免后面添加节点导致出错
+
             start_time = time.time()
             # 获取训练数据 其实这是随机去体数据中裁剪
 
