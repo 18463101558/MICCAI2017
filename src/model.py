@@ -406,7 +406,7 @@ class unet_3D_xy(object):
 
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
-        print("尝试加载保存点于",self.chkpoint_dir,self.step)
+        print("尝试加载保存点于:",self.chkpoint_dir,self.step)
         start_time = time.time()
         if self.load_chkpoint(self.chkpoint_dir,self.step):
             print(" [*] 加载成功")
@@ -415,89 +415,82 @@ class unet_3D_xy(object):
             return
         self.test(self.step, "test.log" )
 
-    # 把预测出来
-    def test_generate_map(self):
-        """Test 3D U-net"""
-        init_op = tf.global_variables_initializer()
-        self.sess.run(init_op)
-
-        start_time = time.time()
-        if self.load_chkpoint(self.chkpoint_dir):
-            print( " [*] 测试模型加载成功，路径为:", self.chkpoint_dir, )
-        else:
-            print( " [!] 测试模型加载失败！" )
-
-        # 加载测试集合
+    def generate_map(self,counter):
+        # 获得test数据列表
         test_list = glob('{}/*.nii.gz'.format(self.testdata_dir))
         test_list.sort()
 
         # test
-        test_cnt = 0
-        for k in range(0, len(test_list), 2):#所以这里每一次取的都是imagedata啦
-            print("processing # %d volume..." % k)
-            #加载体数据
+        for k in range(0, len(test_list),1):
+            print("开始处理:", str(test_list[k]))
+
+            # 加载体数据 这里是加载原始数据
             vol_file = nib.load(test_list[k])
-
-            #最后可视化才会用上的家伙
-            ref_affine = vol_file.affine
-
-            # 转换成体数据
             vol_data = vol_file.get_data().copy()
 
-            #缩小体数据大小
+            # 尺度缩放到307
             resize_dim = (np.array(vol_data.shape) * self.resize_r).astype('int')
             vol_data_resz = resize(vol_data, resize_dim, order=1, preserve_range=True)
 
-            #标准化
+            # 对体数据标准化
             vol_data_resz = vol_data_resz.astype('float32')
             vol_data_resz = vol_data_resz / 255.0
 
-            # 切分成小块 最后一个数字是重叠因子
-            cube_list = decompose_vol2cube(vol_data_resz, self.batch_size, self.inputI_size, self.inputI_chn, self.ovlp_ita)
-            print ("=== cube list is built!")
-            # predict on each cube
-            cube_prob_list = []
+            # 将体数据分解为单个立方块，用于进行预测
+            cube_list = decompose_vol2cube(vol_data_resz, self.batch_size, self.inputI_size, self.inputI_chn,
+                                           self.ovlp_ita)
+            print(k," cube list is built!")
+            # 获取预测出来的label
             cube_label_list = []
             for c in range(len(cube_list)):
+                # 取出一个立方块 并且进行标准化
                 cube2test = cube_list[c]
                 mean_temp = np.mean(cube2test)
                 dev_temp = np.std(cube2test)
                 cube2test_norm = (cube2test - mean_temp) / dev_temp
-                # probability cube
-                cube_probs = self.sess.run(self.pred_prob, feed_dict={self.input_I: cube2test_norm})
-                cube_prob_list.append(cube_probs)#预测出每个像素点在8类的概率
-                # label cube
-                cube_label = self.sess.run(self.pred_label, feed_dict={self.input_I: cube2test_norm})
-                cube_label_list.append(cube_label)#转换成实际的label值
-                # print np.unique(cube_label)
+                if c % 20 == 0:
+                    print("预测第%s个ct图像第%s立方块" % (k, c))
+                # 获取单个立方块的预测结果
+                # 获取测试路径掩码
+                is_global_path, global_path_list, local_path_list = get_test_path_list(self.Stages, self.Blocks,
+                                                                                       self.Columns)
+                cube_label = self.sess.run(self.pred_label,
+                                           feed_dict={self.input_I: cube2test_norm, self.is_global_path: is_global_path,
+                                                      self.global_path_list: global_path_list,
+                                                      self.local_path_list: local_path_list})
+                cube_label_list.append(cube_label)
 
-            # 变换回体数据
-            composed_prob_orig = compose_prob_cube2vol(cube_prob_list, resize_dim, self.inputI_size, self.ovlp_ita, self.output_chn)
-            print ("=== prob volume is composed!")
+            # 将这些立方块的结果拼凑起来
+            composed_orig = compose_label_cube2vol(cube_label_list, resize_dim, self.inputI_size, self.ovlp_ita,self.output_chn)
+            composed_label = np.zeros(composed_orig.shape, dtype='int16')
+            print("=== prob volume is composed!")
 
-            # composed_label_orig = np.argmax(composed_prob_orig, axis=3)
+            # 对label进行重命名，也就是将标签值转换回0, 205, 420, 500, 550, 600, 820, 850
+            for i in range(len(self.rename_map)):
+                composed_label[composed_orig == i] = self.rename_map[i]
+            composed_label = composed_label.astype('int16')
 
-            # resize probability map and save
-            # composed_prob_resz = np.array([vol_data.shape[0], vol_data.shape[1], vol_data.shape[2], self.output_chn])
-            min_prob = np.min(composed_prob_orig)
-            max_prob = np.max(composed_prob_orig)
-            for p in range(self.output_chn):
-                composed_prob_resz = resize(composed_prob_orig[:,:,:,p], vol_data.shape, order=1, preserve_range=True)
-                #缩放回原始体数据大小
+            #
+            composed_label_resz = resize(composed_label, vol_data.shape, order=0, preserve_range=True)
+            composed_label_resz = composed_label_resz.astype('int16')
 
-                # composed_prob_resz = (composed_prob_resz - np.min(composed_prob_resz)) / (np.max(composed_prob_resz) - np.min(composed_prob_resz))
-                composed_prob_resz = (composed_prob_resz - min_prob) / (max_prob - min_prob)
-                composed_prob_resz = composed_prob_resz * 255
-                composed_prob_resz = composed_prob_resz.astype('int16')#可以说是把单个心脏子结构的体数据给生成啦
+            c_map_path = os.path.join(self.labeling_dir, ('ct_test_' + str(2001 + k)+ '_image.nii.gz'))
+            nib.save(composed_label_resz, c_map_path)
 
-                c_map_path = os.path.join(self.labeling_dir, ('auxi_' + str(2001+k) + '_c' + str(p) + '.nii.gz'))
-                c_map_vol = nib.Nifti1Image(composed_prob_resz, ref_affine)
-                nib.save(c_map_vol, c_map_path)#给它生成体数据并且保存起来
-                print ("=== probl volume is saved!")
-                # c_map_path = os.path.join("/home/xinyang/project_xy/mmwhs2017/dataset/common/dice_map", ('auxi_' + str(test_cnt) + '_c' + str(p) + '.npy'))
-                # np.save(c_map_path, composed_prob_resz)
 
-            test_cnt = test_cnt + 1
+
+    # 把预测出来的结果保存起来
+    def test_generate_map(self):
+        init_op = tf.global_variables_initializer()
+        self.sess.run(init_op)
+        print("尝试加载保存点于",self.chkpoint_dir,self.step)
+        start_time = time.time()
+        if self.load_chkpoint(self.chkpoint_dir,self.step):
+            print(" [*] 加载成功")
+        else:
+            print(" [!] 加载失败...")
+            return
+        self.generate_map(self.step )
 
 
     # save checkpoint file
@@ -532,4 +525,4 @@ class unet_3D_xy(object):
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
             self.saver_ft.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-            print("fine turn成功！")
+            print("fine-turn成功！")

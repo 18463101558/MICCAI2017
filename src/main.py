@@ -32,8 +32,8 @@ def main(_):
             except:
                 pass
             model.train()#进入训练阶段
-        #elif param_set['phase'] == 'test':
-        #   model.test_generate_map()
+        elif param_set['phase'] == 'gen_map':
+            model.test_generate_map()
         elif param_set['phase'] == 'crsv':
             try:
                 os.remove( "test.log" )
