@@ -270,7 +270,7 @@ class unet_3D_xy(object):
             # 获取验证数据
             batch_val_img, batch_val_label = get_batch_patches(img_clec, label_clec, self.inputI_size, self.batch_size, chn=1, flip_flag=True, rot_flag=True)
             #获取训练路径掩码
-            is_global_path, global_path_list, local_path_list=get_train_path_list(self.Stages,self.Blocks,self.Columns)
+            is_global_path, global_path_list, local_path_list=get_test_path_list(self.Stages,self.Blocks,self.Columns)
 
             # Update 3D U-net 获取损失值
             _, cur_train_loss = self.sess.run([u_optimizer, self.total_loss], feed_dict={self.input_I: batch_img,
@@ -426,6 +426,7 @@ class unet_3D_xy(object):
 
             # 加载体数据 这里是加载原始数据
             vol_file = nib.load(test_list[k])
+            my_affine=vol_file.affine
             vol_data = vol_file.get_data().copy()
 
             # 尺度缩放到307
@@ -475,7 +476,8 @@ class unet_3D_xy(object):
             composed_label_resz = composed_label_resz.astype('int16')
 
             c_map_path = os.path.join(self.labeling_dir, ('ct_test_' + str(2001 + k)+ '_image.nii.gz'))
-            nib.save(composed_label_resz, c_map_path)
+            labeling_vol=nib.Niftilmage(composed_label_resz)
+            nib.save(labeling_vol, c_map_path)
 
 
 
