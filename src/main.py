@@ -33,6 +33,7 @@ def main(_):
                 pass
             model.train()#进入训练阶段
         elif param_set['phase'] == 'gen_map':
+            print("gen map!")
             model.test_generate_map()
         elif param_set['phase'] == 'crsv':
             try:

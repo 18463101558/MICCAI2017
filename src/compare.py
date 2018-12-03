@@ -7,9 +7,11 @@ from utils import *
 from seg_eval import *
 
 
+#gt数据
+testlist1="../outcome/testdata/ct_train_1004_label.nii.gz"
+#预测出来的数据
+testlist2="../outcome/label/ct_test_2001_image.nii.gz"
 
-testlist1="../outcome/testdata/ct_train_1002_label.nii.gz"
-testlist2="../outcome/testdata/ct_train_1002_label.nii.gz"
 print(testlist1)
 # 加载对应的groundtruth
 gt_file = nib.load(testlist1)

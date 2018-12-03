@@ -426,8 +426,14 @@ class unet_3D_xy(object):
 
             # 加载体数据 这里是加载原始数据
             vol_file = nib.load(test_list[k])
-            my_affine=vol_file.affine
+            ref_affine=vol_file.affine
             vol_data = vol_file.get_data().copy()
+
+            # # ====================
+            # if k == 22 or k == 36:
+            #     # flip
+            #     vol_data = vol_data[::-1, :, :]
+            # # ====================
 
             # 尺度缩放到307
             resize_dim = (np.array(vol_data.shape) * self.resize_r).astype('int')
@@ -475,8 +481,14 @@ class unet_3D_xy(object):
             composed_label_resz = resize(composed_label, vol_data.shape, order=0, preserve_range=True)
             composed_label_resz = composed_label_resz.astype('int16')
 
+            composed_label_resz = remove_minor_cc( composed_label_resz, rej_ratio=0.3, rename_map=self.rename_map )
+            # # ====================
+            # if k == 22 or k == 36:
+            #     # flip
+            #     composed_label_resz = composed_label_resz[::-1, :, :]
+            # # ====================
             c_map_path = os.path.join(self.labeling_dir, ('ct_test_' + str(2001 + k)+ '_image.nii.gz'))
-            labeling_vol=nib.Niftilmage(composed_label_resz)
+            labeling_vol=nib.Nifti1Image(composed_label_resz, ref_affine)
             nib.save(labeling_vol, c_map_path)
 
 
