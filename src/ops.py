@@ -60,3 +60,48 @@ def conv_bn_relu_x3(input, output_chn, kernel_size, stride, use_bias, is_trainin
         z_out = conv_bn_relu(z, output_chn, kernel_size, stride, use_bias, is_training, "dense2")
         z_out = conv_bn_relu(z_out, output_chn, kernel_size, stride, use_bias, is_training, "dense3")
         return z+z_out
+#通道数量不会变，就是一个1x1x1的卷积而已
+def gate_block(input,output_chn, name):
+    gate=conv_bn_relu(input, output_chn, kernel_size=1, stride=1, use_bias=False, is_training=1,name=name)
+    #和图中的1x1x1卷积相同，用于执行一次粗略变换
+    return gate
+
+#返回多头注意力结果，第三个是门控通道数量，第四个是输入通道数量
+#第一个是输入，第二个是门控，这一个就是综合两个的注意力
+def MultiAttentionBlock(input, gate_signal, output_chn,name):
+    gate_1 = GridAttentionBlock3D(input,gate_signal,inter_channels=output_chn,name=name+"att1")#inter_channels指输出的通道大小
+    gate_2= GridAttentionBlock3D(input,gate_signal,inter_channels=output_chn,name=name+"att2")
+    concat_1 = tf.concat([gate_1, gate_2], axis=4)
+    combine_gates = conv_bn_relu(concat_1,output_chn, kernel_size=1, stride=1, use_bias=False, is_training=1, name=name+"combine_gates")
+    return combine_gates
+
+def GridAttentionBlock3D(input,gate_signal, inter_channels,name):
+    theta_x = theta(input,inter_channels)#将输入缩小到原来1/2
+    phi_g=phi(gate_signal,inter_channels)#将门控信号转换到和输入信号相同通道数量,由于这里gate本来就是原特征图一半大小，所以这里不用上采样
+    add=theta_x+phi_g#利用局部特征图和全局特征图生成门控信号
+    relu_gate = tf.nn.relu(add)
+    sigmoid_gate=tf.sigmoid(psi(relu_gate))#转换成单通道特征图进行门控
+    sigmoid_gate= Deconv3d(sigmoid_gate, inter_channels, name=name)#门控上采样到和输入相同大小
+    y=sigmoid_gate*input#生成了注意力特征图
+    print(y.shape)
+    w_y=W_Y(y,inter_channels)
+    return w_y
+
+#对输入信号进行变换
+def theta(input,output_chn):
+    #print("变换前shape：",input.shape) #1,12,12,12,512
+    return tf.layers.conv3d(inputs=input, filters=output_chn, kernel_size=2, strides=2, data_format='channels_last',use_bias=False)
+#对门控信号进行卷积
+def phi(gate_signal,output_chn):
+    return tf.layers.conv3d(inputs=gate_signal, filters=output_chn, kernel_size=1, strides=1,  data_format='channels_last',
+                            use_bias=True)
+
+def psi(input):
+    return tf.layers.conv3d(inputs=input, filters=1, kernel_size=1, strides=1,  data_format='channels_last',
+                           use_bias=True)
+def W_Y(input,output_chn):
+    conv1= tf.layers.conv3d(inputs=input, filters=output_chn, kernel_size=1, strides=1,
+                            data_format='channels_last',use_bias=False)
+    bn = tf.contrib.layers.batch_norm(conv1, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True,
+                                      is_training=1)
+    return bn

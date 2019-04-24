@@ -67,9 +67,9 @@ class unet_3D_xy(object):
             gti = gt[:,:,:,:,i]
             predi = softmaxpred[:,:,:,:,i]
             weighted = 1-(tf.reduce_sum(gti)/tf.reduce_sum(gt))
-            # print("class %d"%(i))
-            # print(weighted)
-            loss = loss + -tf.reduce_mean(weighted * gti * tf.log(tf.clip_by_value(predi, 0.005, 1)))
+            focal_loss=tf.pow( (1-tf.clip_by_value(predi, 0.005, 1)) , 4, name=None)
+            #focal_loss=1
+            loss = loss + -tf.reduce_mean(weighted * gti *focal_loss* tf.log(tf.clip_by_value(predi, 0.005, 1)))
         return loss
 
     # build model graph
@@ -101,7 +101,7 @@ class unet_3D_xy(object):
         self.aux2_wght_loss = self.softmax_weighted_loss(self.aux2_prob, self.input_gt)
         self.total_wght_loss = self.main_wght_loss + 0.3*self.aux0_wght_loss + 0.6*self.aux1_wght_loss + 0.9*self.aux2_wght_loss
 
-        self.total_loss = 100.0*self.total_dice_loss + self.total_wght_loss
+        self.total_loss =  self.total_wght_loss
         # self.total_loss = self.total_wght_loss
 
         # trainable variables 返回的是需要训练的变量列表
@@ -173,24 +173,26 @@ class unet_3D_xy(object):
 
         conv5_1 = conv_bn_relu(input=pool4, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_1')#conv5_1 (1, 6, 6, 6, 512)
         conv5_2 = conv_bn_relu(input=conv5_1, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_2')#conv5_2  (1, 6, 6, 6, 512)
+        gate1=gate_block(conv5_2,output_chn=512, name="gate0")
+        skip1=MultiAttentionBlock(conv4_2,gate1,output_chn=512,name="attention1")
 
         deconv1_1 = deconv_bn_relu(input=conv5_2, output_chn=512, is_training=phase_flag, name='deconv1_1')#(1, 12, 12, 12, 512)
 
-        concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')#(1, 12, 12, 12, 1024)
+        concat_1 = tf.concat([deconv1_1, skip1], axis=concat_dim, name='concat_1')#(1, 12, 12, 12, 1024)
         deconv1_2_in = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv1_2')
         deconv1_2_frac=fractal_net(is_global_path_list[3], global_path_list[3], local_path_list[3], self.Blocks, self.Columns)(deconv1_2_in )
         deconv1_2=deconv1_2_in+deconv1_2_frac#(1, 12, 12, 12, 256)
-
+        skip2 = MultiAttentionBlock(conv3_2, deconv1_2, output_chn=256, name="attention2")
         deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')#deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
 
-        concat_2 = tf.concat([deconv2_1, conv3_2], axis=concat_dim, name='concat_2')
+        concat_2 = tf.concat([deconv2_1, skip2], axis=concat_dim, name='concat_2')
         deconv2_2_in = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv2_2')
         deconv2_2_frac= fractal_net(is_global_path_list[4], global_path_list[4], local_path_list[4], self.Blocks,self.Columns)(deconv2_2_in)
         deconv2_2=deconv2_2_in+deconv2_2_frac#deconv2_2 (1, 24, 24, 24, 128)
-
+        skip3 = MultiAttentionBlock(conv2_1, deconv2_2, output_chn=128, name="attention3")
         deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')# deconv3_1 (1, 48, 48, 48, 128)
 
-        concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
+        concat_3 = tf.concat([deconv3_1, skip3], axis=concat_dim, name='concat_3')
         deconv3_2_in = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False, is_training=phase_flag, name='deconv3_2')
         deconv3_2_frac = fractal_net(is_global_path_list[5], global_path_list[5], local_path_list[5], self.Blocks,self.Columns)(deconv3_2_in)
         deconv3_2=deconv3_2_in +deconv3_2_frac#deconv3_2 (1, 48, 48, 48, 64)
