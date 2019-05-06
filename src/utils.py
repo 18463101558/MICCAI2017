@@ -5,6 +5,7 @@ import copy
 from scipy.ndimage import rotate
 from skimage.transform import resize
 from scipy.ndimage import measurements
+import tensorflow as tf
 
 
 ##############################
@@ -349,13 +350,55 @@ def test_local_path_list(StageNum,Blocks,Columns,threshold=5):
             BLOCK_LIST.append(ROW_LIST)#一个block对应多行
         STAGE_LIST.append(BLOCK_LIST)#一个stage可以对应多个block
     return STAGE_LIST
+#获取用于产生训练数据的路径(路径被随机丢弃)
 def get_train_path_list(StageNum,Blocks,Columns):
     is_global_path=train_is_global_path_list(StageNum, Blocks)
     global_path_list=produce_global_path_list(StageNum,Blocks,Columns)
     local_path_list=train_local_path_list(StageNum,Blocks,Columns)
     return is_global_path, global_path_list, local_path_list
+
+#获取用于产生测试数据的路径（路径全部保留）
 def get_test_path_list(StageNum,Blocks,Columns):
     is_global_path=test_is_global_path_list(StageNum, Blocks)
     global_path_list=produce_global_path_list(StageNum,Blocks,Columns)
     local_path_list=test_local_path_list(StageNum,Blocks,Columns)
     return is_global_path, global_path_list, local_path_list
+#获取需要保留的背景样本数量
+def background_num_to_save(input_gt,pred):#这里groundtruth是已经one-hot编码的结果
+    background_num = tf.reduce_sum(input_gt[:, :, :, :,0])#这是因为只有对应分到这一类才为1
+    total_num=tf.reduce_sum(input_gt)
+    foreground_num=total_num-background_num
+    save_back_ground_num=tf.reduce_max([2*foreground_num, background_num/4])#设定需要保留的背景样本数量
+    save_back_ground_num=tf.clip_by_value(save_back_ground_num, 0, background_num)#保证待保留的数量不要超标,最多
+    return save_back_ground_num
+
+def no_background(input_gt):
+    return input_gt
+
+def exist_background(input_gt, pred,save_back_ground_num):
+    batch, in_depth, in_height, in_width, in_channels = [int(d) for d in input_gt.get_shape()]#取出各维度大小
+    data = pred[:, :, :, :, 0]  # 将输出结果属于背景的拎出来，因为需要它生成mask
+    pred_back_ground_data = tf.reshape(data, (batch, in_depth * in_height * in_width))  # 把数据按照batch为维度进行展开
+    mask = []
+    for i in range(batch):
+        gti = pred_back_ground_data[i, :]  # 取出一个批次的数据
+        max_k_number, index = tf.nn.top_k(gti, save_back_ground_num)  # 找出最大的前k个硬负样本
+        max_k = tf.reduce_min(max_k_number)  # 找出第k大值
+        one = tf.ones_like(gti)  # 全1掩码
+        zero = tf.zeros_like(gti)  # 全0掩码
+        mask_slice = tf.where(gti < max_k, x=zero, y=one)  # 小于k的位置为0，大于k的位置为1
+        mask_slice = tf.reshape(mask_slice, [in_depth, in_height, in_width])
+        mask.append(mask_slice)
+    mask = tf.expand_dims(mask, -1)  # -1表示最后一维，这是生成针对背景的掩码
+    other_mask = tf.ones([batch, in_depth, in_height, in_width, in_channels - 1], tf.float32)  # 其他维补充上来
+    full_mask = tf.concat([mask, other_mask], 4)  # 形成丢弃背景信息的掩码
+    input_gt = full_mask * input_gt  # 形成丢弃背景信息的groundtruth
+    return input_gt
+
+#为groundtruth生成背景掩码，从而丢弃掉不需要的背景信息
+def produce_mask_background(input_gt,pred):
+    save_back_ground_num=background_num_to_save(input_gt,pred)#根据groundtruth获取获取需要保留的背景数量
+    save_back_ground_num = tf.cast(save_back_ground_num, dtype=tf.int32)#转换成int
+    product = tf.cond(save_back_ground_num < 5, lambda:no_background(input_gt),lambda: exist_background(input_gt, pred,save_back_ground_num))
+    # 条件满足，就会产生前面那个，进入限制产生背景样本，否则不对背景样本产生mask
+    return product

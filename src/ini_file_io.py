@@ -5,7 +5,7 @@ import configparser
 def load_train_ini(ini_file):
     # initialize
     cf = configparser.ConfigParser()
-    cf.read(ini_file)
+    cf.read(ini_file, encoding="utf-8-sig")
     # dictionary list
     param_sections = []
 

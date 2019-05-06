@@ -8,7 +8,7 @@ from ops import *
 from utils import *
 from seg_eval import *
 from fractalnet import fractal_net
-
+import tensorflow as tf
 class unet_3D_xy(object):
     """ Implementation of 3D U-net"""
     def __init__(self, sess, param_set):
@@ -42,7 +42,10 @@ class unet_3D_xy(object):
     # dice loss function
     def dice_loss_fun(self, pred, input_gt):
         input_gt = tf.one_hot(input_gt, 8)
-        # print(input_gt.shape)
+        #############################################################
+        #softmaxpred = tf.nn.softmax(pred)
+        # input_gt = produce_mask_background(input_gt,softmaxpred )
+        ####################################################################
         dice = 0
         for i in range(8):
             inse = tf.reduce_mean(pred[:, :, :, :, i]*input_gt[:, :, :, :, i])
@@ -62,6 +65,9 @@ class unet_3D_xy(object):
         gt = tf.one_hot(labels, 8)
         pred = logits
         softmaxpred = tf.nn.softmax(pred)
+        #############################################################
+        #gt = produce_mask_background(gt, softmaxpred)#根据预测值生成对grountruth的掩膜
+        ####################################################################
         loss = 0
         for i in range(8):
             gti = gt[:,:,:,:,i]
@@ -91,7 +97,6 @@ class unet_3D_xy(object):
         self.aux0_dice_loss = self.dice_loss_fun(self.aux0_prob, self.input_gt)
         self.aux1_dice_loss = self.dice_loss_fun(self.aux1_prob, self.input_gt)
         self.aux2_dice_loss = self.dice_loss_fun(self.aux2_prob, self.input_gt)
-        #
         self.total_dice_loss = self.main_dice_loss + 0.2*self.aux0_dice_loss + 0.4*self.aux1_dice_loss + 0.8*self.aux2_dice_loss
 
         # ========= class-weighted cross-entropy loss
@@ -101,7 +106,7 @@ class unet_3D_xy(object):
         self.aux2_wght_loss = self.softmax_weighted_loss(self.aux2_prob, self.input_gt)
         self.total_wght_loss = self.main_wght_loss + 0.3*self.aux0_wght_loss + 0.6*self.aux1_wght_loss + 0.9*self.aux2_wght_loss
 
-        self.total_loss =  self.total_wght_loss
+        self.total_loss = 100* self.total_dice_loss+2*self.total_wght_loss
         # self.total_loss = self.total_wght_loss
 
         # trainable variables 返回的是需要训练的变量列表
@@ -140,6 +145,12 @@ class unet_3D_xy(object):
         conv1_1 = conv3d(input=inputI, output_chn=64, kernel_size=3, stride=1, use_bias=False, name='conv1')#conv1_1 (1, 96, 96, 96, 64)
         conv1_bn = tf.contrib.layers.batch_norm(conv1_1, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True,is_training=phase_flag, scope="conv1_batch_norm")
         conv1_relu = tf.nn.relu(conv1_bn, name='conv1_relu')
+        ######################################################################
+        conv1_se=Squeeze_Excitation_Block(conv1_relu, output_chn=64, ratio=16)
+        conv1_relu=conv1_relu+conv1_se
+        conv1_relu=tf.nn.relu(conv1_relu, name='conv1_2_relu')
+        #####################################################################
+
         pool1_in = tf.layers.max_pooling3d(inputs=conv1_relu, pool_size=2, strides=2, name='pool1')# pool1 (1, 48, 48, 48, 64)
         pool1_frac = fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks,self.Columns)(pool1_in)
         pool1 = pool1_in + pool1_frac
@@ -147,17 +158,29 @@ class unet_3D_xy(object):
         conv2_1 = conv3d(input=pool1, output_chn=128, kernel_size=3, stride=1, use_bias=False, name='conv2')#(1, 48, 48, 48, 128)
         conv2_bn = tf.contrib.layers.batch_norm(conv2_1, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True,is_training=phase_flag, scope="conv2_batch_norm")
         conv2_relu = tf.nn.relu(conv2_bn, name='conv2_relu')
+        ######################################################################
+        conv2_se=Squeeze_Excitation_Block(conv2_relu, output_chn=128, ratio=16)
+        conv2_relu=conv2_relu+conv2_se
+        conv2_relu=tf.nn.relu(conv2_relu, name='conv2_2_relu')
+        #####################################################################
+
         pool2_in = tf.layers.max_pooling3d(inputs=conv2_relu, pool_size=2, strides=2, name='pool2')#pool2  (1, 24, 24, 24, 128)
         pool2_frac = fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,self.Columns)(pool2_in)
         pool2 = pool2_in + pool2_frac
 
+
         conv3_1 = conv3d(input=pool2, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3a')#(1, 24, 24, 24, 256)
         conv3_1_bn = tf.contrib.layers.batch_norm(conv3_1, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv3_1_batch_norm")
         conv3_1_relu = tf.nn.relu(conv3_1_bn, name='conv3_1_relu')
-
         conv3_2 = conv3d(input=conv3_1_relu, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3b')#(1, 24, 24, 24, 256)
         conv3_2_bn = tf.contrib.layers.batch_norm(conv3_2, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv3_2_batch_norm")
         conv3_2_relu = tf.nn.relu(conv3_2_bn, name='conv3_2_relu')
+        ######################################################################
+        conv3_2_se=Squeeze_Excitation_Block(conv3_2_relu, output_chn=256, ratio=16)
+        conv3_2_relu=conv3_2_relu+conv3_2_se
+        conv3_2_relu=tf.nn.relu(conv3_2_relu, name='conv3_2_2_relu')
+        #####################################################################
+
         pool3_in = tf.layers.max_pooling3d(inputs=conv3_2_relu, pool_size=2, strides=2, name='pool3')#pool3 (1, 12, 12, 12, 256)
         pool3_frac = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,self.Columns)(pool3_in)
         pool3=pool3_in+pool3_frac
@@ -169,34 +192,64 @@ class unet_3D_xy(object):
 
         conv4_2_bn = tf.contrib.layers.batch_norm(conv4_2, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv4_2_batch_norm")
         conv4_2_relu = tf.nn.relu(conv4_2_bn, name='conv4_2_relu')
-        pool4 = tf.layers.max_pooling3d(inputs=conv4_2_relu, pool_size=2, strides=2, name='pool4')#pool4 (1, 6, 6, 6, 512)
+        ######################################################################
+        conv4_2_se=Squeeze_Excitation_Block(conv4_2_relu, output_chn=512, ratio=16)
+        conv4_2_relu=conv4_2_relu+conv4_2_se
+        conv4_2_relu=tf.nn.relu(conv4_2_relu, name='conv4_2_2_relu')
+        #####################################################################
 
+        pool4 = tf.layers.max_pooling3d(inputs=conv4_2_relu, pool_size=2, strides=2, name='pool4')#pool4 (1, 6, 6, 6, 512)
         conv5_1 = conv_bn_relu(input=pool4, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_1')#conv5_1 (1, 6, 6, 6, 512)
         conv5_2 = conv_bn_relu(input=conv5_1, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_2')#conv5_2  (1, 6, 6, 6, 512)
-        gate1=gate_block(conv5_2,output_chn=512, name="gate0")
-        skip1=MultiAttentionBlock(conv4_2,gate1,output_chn=512,name="attention1")
+        ################################################################################
+        conv5_2_se=Squeeze_Excitation_Block(conv5_2, output_chn=512, ratio=16)
+        conv5_2=conv5_2+conv5_2_se
+        conv5_2=tf.nn.relu(conv5_2, name='conv5_2_2')
+        ###############################################################################
+        #gate1=gate_block(conv5_2,output_chn=512, name="gate0")
+        #skip1=MultiAttentionBlock(conv4_2,gate1,output_chn=512,name="attention1")
 
         deconv1_1 = deconv_bn_relu(input=conv5_2, output_chn=512, is_training=phase_flag, name='deconv1_1')#(1, 12, 12, 12, 512)
+        #concat_1 = tf.concat( [deconv1_1, skip1], axis=concat_dim, name='concat_1' )
+        concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')#(1, 12, 12, 12, 1024)
 
-        concat_1 = tf.concat([deconv1_1, skip1], axis=concat_dim, name='concat_1')#(1, 12, 12, 12, 1024)
         deconv1_2_in = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv1_2')
         deconv1_2_frac=fractal_net(is_global_path_list[3], global_path_list[3], local_path_list[3], self.Blocks, self.Columns)(deconv1_2_in )
         deconv1_2=deconv1_2_in+deconv1_2_frac#(1, 12, 12, 12, 256)
-        skip2 = MultiAttentionBlock(conv3_2, deconv1_2, output_chn=256, name="attention2")
+        ######################################################################
+        deconv1_2_se=Squeeze_Excitation_Block(deconv1_2, output_chn=256, ratio=16)
+        deconv1_2=deconv1_2+deconv1_2_se
+        deconv1_2=tf.nn.relu(deconv1_2, name='deconv1_2_2')
+        #####################################################################
+
+        #skip2 = MultiAttentionBlock(conv3_2, deconv1_2, output_chn=256, name="attention2")
         deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')#deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
 
-        concat_2 = tf.concat([deconv2_1, skip2], axis=concat_dim, name='concat_2')
+        #concat_2 = tf.concat( [deconv2_1, skip2], axis=concat_dim, name='concat_2' )
+        concat_2 = tf.concat([deconv2_1, conv3_2], axis=concat_dim, name='concat_2')
         deconv2_2_in = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv2_2')
         deconv2_2_frac= fractal_net(is_global_path_list[4], global_path_list[4], local_path_list[4], self.Blocks,self.Columns)(deconv2_2_in)
         deconv2_2=deconv2_2_in+deconv2_2_frac#deconv2_2 (1, 24, 24, 24, 128)
-        skip3 = MultiAttentionBlock(conv2_1, deconv2_2, output_chn=128, name="attention3")
-        deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')# deconv3_1 (1, 48, 48, 48, 128)
 
-        concat_3 = tf.concat([deconv3_1, skip3], axis=concat_dim, name='concat_3')
+        ######################################################################
+        deconv2_2_se=Squeeze_Excitation_Block(deconv2_2, output_chn=128, ratio=16)
+        deconv2_2=deconv2_2+deconv2_2_se
+        deconv2_2=tf.nn.relu(deconv2_2, name='deconv2_2_2')
+        #####################################################################
+
+        #skip3 = MultiAttentionBlock(conv2_1, deconv2_2, output_chn=128, name="attention3")
+        deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')# deconv3_1 (1, 48, 48, 48, 128)
+        #concat_3 = tf.concat( [deconv3_1, skip3], axis=concat_dim, name='concat_3' )
+        concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
         deconv3_2_in = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False, is_training=phase_flag, name='deconv3_2')
         deconv3_2_frac = fractal_net(is_global_path_list[5], global_path_list[5], local_path_list[5], self.Blocks,self.Columns)(deconv3_2_in)
         deconv3_2=deconv3_2_in +deconv3_2_frac#deconv3_2 (1, 48, 48, 48, 64)
 
+        ######################################################################
+        deconv3_2_se=Squeeze_Excitation_Block(deconv3_2, output_chn=64, ratio=16)
+        deconv3_2=deconv3_2+deconv3_2_se
+        deconv3_2=tf.nn.relu(deconv3_2, name='deconv3_2_2')
+        #####################################################################
         deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')#deconv4_2 (1, 96, 96, 96, 32)
 
         concat_4 = tf.concat([deconv4_1, conv1_1], axis=concat_dim, name='concat_4')
@@ -350,6 +403,7 @@ class unet_3D_xy(object):
                 # 获取测试路径掩码
                 is_global_path, global_path_list, local_path_list = get_test_path_list(self.Stages, self.Blocks,
                                                                                         self.Columns)
+                self.sess.graph.finalize()
                 cube_label = self.sess.run(self.pred_label, feed_dict={self.input_I: cube2test_norm,self.is_global_path:is_global_path,
                                               self.global_path_list:global_path_list,self.local_path_list:local_path_list})
                 cube_label_list.append(cube_label)
