@@ -66,15 +66,16 @@ class unet_3D_xy(object):
         pred = logits
         softmaxpred = tf.nn.softmax(pred)
         #############################################################
-        #gt = produce_mask_background(gt, softmaxpred)#根据预测值生成对grountruth的掩膜
+        gt = produce_mask_background(gt, softmaxpred)#根据预测值生成对grountruth的掩膜
+        gt = tf.stop_gradient( gt )  # 不需要对groundtruth产生梯度
         ####################################################################
         loss = 0
         for i in range(8):
             gti = gt[:,:,:,:,i]
             predi = softmaxpred[:,:,:,:,i]
             weighted = 1-(tf.reduce_sum(gti)/tf.reduce_sum(gt))
-            focal_loss=tf.pow( (1-tf.clip_by_value(predi, 0.005, 1)) , 4, name=None)
-            #focal_loss=1
+            #focal_loss=tf.pow( (1-tf.clip_by_value(predi, 0.005, 1)) , 4, name=None)
+            focal_loss=1
             loss = loss + -tf.reduce_mean(weighted * gti *focal_loss* tf.log(tf.clip_by_value(predi, 0.005, 1)))
         return loss
 
@@ -106,7 +107,7 @@ class unet_3D_xy(object):
         self.aux2_wght_loss = self.softmax_weighted_loss(self.aux2_prob, self.input_gt)
         self.total_wght_loss = self.main_wght_loss + 0.3*self.aux0_wght_loss + 0.6*self.aux1_wght_loss + 0.9*self.aux2_wght_loss
 
-        self.total_loss = 100* self.total_dice_loss+2*self.total_wght_loss
+        self.total_loss = self.total_wght_loss
         # self.total_loss = self.total_wght_loss
 
         # trainable variables 返回的是需要训练的变量列表
@@ -137,128 +138,108 @@ class unet_3D_xy(object):
         """3D U-net"""
         phase_flag = 1
         concat_dim = 4
-        # with tf.variable_scope("unet3D_model") as scope:
-        # down-sampling path
-        # compute down-sample path in gpu0
 
-
-        conv1_1 = conv3d(input=inputI, output_chn=64, kernel_size=3, stride=1, use_bias=False, name='conv1')#conv1_1 (1, 96, 96, 96, 64)
+        conv1_1 = conv3d(input=inputI, output_chn=64, kernel_size=3, stride=1, use_bias=False, name='conv1')
+        #conv1_1 (1, 96, 96, 96, 64)
         conv1_bn = tf.contrib.layers.batch_norm(conv1_1, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True,is_training=phase_flag, scope="conv1_batch_norm")
         conv1_relu = tf.nn.relu(conv1_bn, name='conv1_relu')
-        ######################################################################
-        conv1_se=Squeeze_Excitation_Block(conv1_relu, output_chn=64, ratio=16)
-        conv1_relu=conv1_relu+conv1_se
-        conv1_relu=tf.nn.relu(conv1_relu, name='conv1_2_relu')
-        #####################################################################
 
-        pool1_in = tf.layers.max_pooling3d(inputs=conv1_relu, pool_size=2, strides=2, name='pool1')# pool1 (1, 48, 48, 48, 64)
+
+        pool1_in = tf.layers.max_pooling3d(inputs=conv1_relu, pool_size=2, strides=2, name='pool1')
+        # pool1 (1, 48, 48, 48, 64)
         pool1_frac = fractal_net(is_global_path_list[0], global_path_list[0], local_path_list[0], self.Blocks,self.Columns)(pool1_in)
         pool1 = pool1_in + pool1_frac
 
-        conv2_1 = conv3d(input=pool1, output_chn=128, kernel_size=3, stride=1, use_bias=False, name='conv2')#(1, 48, 48, 48, 128)
+        conv2_1 = conv3d(input=pool1, output_chn=128, kernel_size=3, stride=1, use_bias=False, name='conv2')
+        #(1, 48, 48, 48, 128)
         conv2_bn = tf.contrib.layers.batch_norm(conv2_1, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True,is_training=phase_flag, scope="conv2_batch_norm")
         conv2_relu = tf.nn.relu(conv2_bn, name='conv2_relu')
-        ######################################################################
-        conv2_se=Squeeze_Excitation_Block(conv2_relu, output_chn=128, ratio=16)
-        conv2_relu=conv2_relu+conv2_se
-        conv2_relu=tf.nn.relu(conv2_relu, name='conv2_2_relu')
-        #####################################################################
 
-        pool2_in = tf.layers.max_pooling3d(inputs=conv2_relu, pool_size=2, strides=2, name='pool2')#pool2  (1, 24, 24, 24, 128)
+        pool2_in = tf.layers.max_pooling3d(inputs=conv2_relu, pool_size=2, strides=2, name='pool2')
+        #pool2  (1, 24, 24, 24, 128)
         pool2_frac = fractal_net(is_global_path_list[1], global_path_list[1], local_path_list[1], self.Blocks,self.Columns)(pool2_in)
         pool2 = pool2_in + pool2_frac
 
 
-        conv3_1 = conv3d(input=pool2, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3a')#(1, 24, 24, 24, 256)
+        conv3_1 = conv3d(input=pool2, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3a')
+        #(1, 24, 24, 24, 256)
         conv3_1_bn = tf.contrib.layers.batch_norm(conv3_1, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv3_1_batch_norm")
         conv3_1_relu = tf.nn.relu(conv3_1_bn, name='conv3_1_relu')
-        conv3_2 = conv3d(input=conv3_1_relu, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3b')#(1, 24, 24, 24, 256)
+        conv3_2 = conv3d(input=conv3_1_relu, output_chn=256, kernel_size=3, stride=1, use_bias=False, name='conv3b')
+        #(1, 24, 24, 24, 256)
+        conv3_2=conv3_2+conv3_1
         conv3_2_bn = tf.contrib.layers.batch_norm(conv3_2, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv3_2_batch_norm")
         conv3_2_relu = tf.nn.relu(conv3_2_bn, name='conv3_2_relu')
-        ######################################################################
-        conv3_2_se=Squeeze_Excitation_Block(conv3_2_relu, output_chn=256, ratio=16)
-        conv3_2_relu=conv3_2_relu+conv3_2_se
-        conv3_2_relu=tf.nn.relu(conv3_2_relu, name='conv3_2_2_relu')
-        #####################################################################
 
-        pool3_in = tf.layers.max_pooling3d(inputs=conv3_2_relu, pool_size=2, strides=2, name='pool3')#pool3 (1, 12, 12, 12, 256)
+
+        pool3_in = tf.layers.max_pooling3d(inputs=conv3_2_relu, pool_size=2, strides=2, name='pool3')
+        #pool3 (1, 12, 12, 12, 256)
         pool3_frac = fractal_net(is_global_path_list[2], global_path_list[2], local_path_list[2], self.Blocks,self.Columns)(pool3_in)
         pool3=pool3_in+pool3_frac
 
-        conv4_1 = conv3d(input=pool3, output_chn=512, kernel_size=3, stride=1, use_bias=False, name='conv4a')#conv4_1 (1, 12, 12, 12, 512)
+        conv4_1 = conv3d(input=pool3, output_chn=512, kernel_size=3, stride=1, use_bias=False, name='conv4a')
+        #conv4_1 (1, 12, 12, 12, 512)
         conv4_1_bn = tf.contrib.layers.batch_norm(conv4_1, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv4_1_batch_norm")
         conv4_1_relu = tf.nn.relu(conv4_1_bn, name='conv4_1_relu')
-        conv4_2 = conv3d(input=conv4_1_relu, output_chn=512, kernel_size=3, stride=1, use_bias=False, name='conv4b')# conv4_2 (1, 12, 12, 12, 512)
-
+        conv4_2 = conv3d(input=conv4_1_relu, output_chn=512, kernel_size=3, stride=1, use_bias=False, name='conv4b')
+        conv4_2=conv4_2+conv4_1
+        # conv4_2 (1, 12, 12, 12, 512)
         conv4_2_bn = tf.contrib.layers.batch_norm(conv4_2, decay=0.9, updates_collections=None, epsilon=1e-5,scale=True, is_training=phase_flag, scope="conv4_2_batch_norm")
         conv4_2_relu = tf.nn.relu(conv4_2_bn, name='conv4_2_relu')
-        ######################################################################
-        conv4_2_se=Squeeze_Excitation_Block(conv4_2_relu, output_chn=512, ratio=16)
-        conv4_2_relu=conv4_2_relu+conv4_2_se
-        conv4_2_relu=tf.nn.relu(conv4_2_relu, name='conv4_2_2_relu')
-        #####################################################################
 
-        pool4 = tf.layers.max_pooling3d(inputs=conv4_2_relu, pool_size=2, strides=2, name='pool4')#pool4 (1, 6, 6, 6, 512)
-        conv5_1 = conv_bn_relu(input=pool4, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_1')#conv5_1 (1, 6, 6, 6, 512)
-        conv5_2 = conv_bn_relu(input=conv5_1, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_2')#conv5_2  (1, 6, 6, 6, 512)
-        ################################################################################
-        conv5_2_se=Squeeze_Excitation_Block(conv5_2, output_chn=512, ratio=16)
-        conv5_2=conv5_2+conv5_2_se
-        conv5_2=tf.nn.relu(conv5_2, name='conv5_2_2')
-        ###############################################################################
-        #gate1=gate_block(conv5_2,output_chn=512, name="gate0")
-        #skip1=MultiAttentionBlock(conv4_2,gate1,output_chn=512,name="attention1")
 
-        deconv1_1 = deconv_bn_relu(input=conv5_2, output_chn=512, is_training=phase_flag, name='deconv1_1')#(1, 12, 12, 12, 512)
-        #concat_1 = tf.concat( [deconv1_1, skip1], axis=concat_dim, name='concat_1' )
-        concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')#(1, 12, 12, 12, 1024)
+        pool4 = tf.layers.max_pooling3d(inputs=conv4_2_relu, pool_size=2, strides=2, name='pool4')
+        #pool4 (1, 6, 6, 6, 512)
+        conv5_1 = conv_bn_relu(input=pool4, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_1')
+        #conv5_1 (1, 6, 6, 6, 512)
+        conv5_2 = conv_bn_relu(input=conv5_1, output_chn=512, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='conv5_2')
+        #conv5_2  (1, 6, 6, 6, 512)
+
+
+        deconv1_1 = deconv_bn_relu(input=conv5_2, output_chn=512, is_training=phase_flag, name='deconv1_1')
+        #(1, 12, 12, 12, 512)
+
+        concat_1 = tf.concat([deconv1_1, conv4_2], axis=concat_dim, name='concat_1')
+        #(1, 12, 12, 12, 1024)
 
         deconv1_2_in = conv_bn_relu(input=concat_1, output_chn=256, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv1_2')
         deconv1_2_frac=fractal_net(is_global_path_list[3], global_path_list[3], local_path_list[3], self.Blocks, self.Columns)(deconv1_2_in )
         deconv1_2=deconv1_2_in+deconv1_2_frac#(1, 12, 12, 12, 256)
-        ######################################################################
-        deconv1_2_se=Squeeze_Excitation_Block(deconv1_2, output_chn=256, ratio=16)
-        deconv1_2=deconv1_2+deconv1_2_se
-        deconv1_2=tf.nn.relu(deconv1_2, name='deconv1_2_2')
-        #####################################################################
 
-        #skip2 = MultiAttentionBlock(conv3_2, deconv1_2, output_chn=256, name="attention2")
-        deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')#deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
+        deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')
+        #deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
 
-        #concat_2 = tf.concat( [deconv2_1, skip2], axis=concat_dim, name='concat_2' )
+
         concat_2 = tf.concat([deconv2_1, conv3_2], axis=concat_dim, name='concat_2')
+        #deconv2_2 (1, 24, 24, 24, 512)
         deconv2_2_in = conv_bn_relu(input=concat_2, output_chn=128, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv2_2')
         deconv2_2_frac= fractal_net(is_global_path_list[4], global_path_list[4], local_path_list[4], self.Blocks,self.Columns)(deconv2_2_in)
-        deconv2_2=deconv2_2_in+deconv2_2_frac#deconv2_2 (1, 24, 24, 24, 128)
+        deconv2_2=deconv2_2_in+deconv2_2_frac
+        #deconv2_2 (1, 24, 24, 24, 128)
 
-        ######################################################################
-        deconv2_2_se=Squeeze_Excitation_Block(deconv2_2, output_chn=128, ratio=16)
-        deconv2_2=deconv2_2+deconv2_2_se
-        deconv2_2=tf.nn.relu(deconv2_2, name='deconv2_2_2')
-        #####################################################################
 
-        #skip3 = MultiAttentionBlock(conv2_1, deconv2_2, output_chn=128, name="attention3")
-        deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')# deconv3_1 (1, 48, 48, 48, 128)
-        #concat_3 = tf.concat( [deconv3_1, skip3], axis=concat_dim, name='concat_3' )
+        deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')
+        # deconv3_1 (1, 48, 48, 48, 128)
+
         concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
+        # deconv3_1 (1, 48, 48, 48, 256)
+
         deconv3_2_in = conv_bn_relu(input=concat_3, output_chn=64, kernel_size=3, stride=1, use_bias=False, is_training=phase_flag, name='deconv3_2')
         deconv3_2_frac = fractal_net(is_global_path_list[5], global_path_list[5], local_path_list[5], self.Blocks,self.Columns)(deconv3_2_in)
-        deconv3_2=deconv3_2_in +deconv3_2_frac#deconv3_2 (1, 48, 48, 48, 64)
+        deconv3_2=deconv3_2_in +deconv3_2_frac
+        #deconv3_2 (1, 48, 48, 48, 64)
 
-        ######################################################################
-        deconv3_2_se=Squeeze_Excitation_Block(deconv3_2, output_chn=64, ratio=16)
-        deconv3_2=deconv3_2+deconv3_2_se
-        deconv3_2=tf.nn.relu(deconv3_2, name='deconv3_2_2')
-        #####################################################################
-        deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')#deconv4_2 (1, 96, 96, 96, 32)
+
+        deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')
+        #deconv4_2 (1, 96, 96, 96, 32)
 
         concat_4 = tf.concat([deconv4_1, conv1_1], axis=concat_dim, name='concat_4')
+        # deconv4_2 (1, 96, 96, 96, 64)
         deconv4_2 = conv_bn_relu(input=concat_4, output_chn=32, kernel_size=3, stride=1, use_bias=False,is_training=phase_flag, name='deconv4_2')#deconv4_2 (1, 96, 96, 96, 32)
 
         pre_pro = conv3d(input=deconv4_2, output_chn=self.output_chn, kernel_size=1, stride=1, use_bias=True, name='pre_pro')
         #pred_frac = fractal_net(is_global_path_list[3],global_path_list[3],local_path_list[3],self.Blocks,self.Columns)(pre_pro)
         pred_prob= pre_pro#pred_prob (1, 96, 96, 96, 8) 注意在这里生成了最终预测
-
 
         # ======================用于预测输出=============================
         # auxiliary prediction 0
@@ -456,7 +437,7 @@ class unet_3D_xy(object):
             total_mean_jaccard += mean_jaccard[i]
         test_log.write( "Epoch %s average dice:  %s dicemean: %s average jaccard:  %s jaccardmean: %s\n"\
                         % ( counter,str( mean_dice ),str(total_mean_dice/7),str( mean_jaccard ),str(total_mean_jaccard/7)) )
-
+        test_log.close()
     # test function for cross validation
     def test4crsv(self):
 
@@ -576,7 +557,7 @@ class unet_3D_xy(object):
     # load checkpoint file
     def load_chkpoint(self, checkpoint_dir,step=-1):
 
-
+        tf.reset_default_graph()
         model_dir = "%s_%s_%s" % (self.batch_size, self.outputI_size,step)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
         print( " [*] 加载保存点文件,路径为",str(checkpoint_dir) )

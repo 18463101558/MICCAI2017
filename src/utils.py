@@ -368,21 +368,30 @@ def background_num_to_save(input_gt,pred):#这里groundtruth是已经one-hot编�
     background_num = tf.reduce_sum(input_gt[:, :, :, :,0])#这是因为只有对应分到这一类才为1
     total_num=tf.reduce_sum(input_gt)
     foreground_num=total_num-background_num
-    save_back_ground_num=tf.reduce_max([2*foreground_num, background_num/4])#设定需要保留的背景样本数量
-    save_back_ground_num=tf.clip_by_value(save_back_ground_num, 0, background_num)#保证待保留的数量不要超标,最多
+    save_back_ground_num=tf.reduce_max([2*foreground_num, background_num/8])#设定需要保留的背景样本数量
+    save_back_ground_num=tf.clip_by_value(save_back_ground_num, 0, background_num)#保证待保留的数量不要超标,最多和原来背景一样多
     return save_back_ground_num
 
 def no_background(input_gt):
     return input_gt
 
 def exist_background(input_gt, pred,save_back_ground_num):
+    #硬负样本：在标签中属于负样本，但是在预测中被极大预测为前景（也就是被预测为背景概率值很小），
+    #这里需要注意一点，先行筛选掉那些属于前景类的样本，因为他们本来被预测为背景的概率就很低
+    #如果不需要筛选，那么直接对背景概率值求反然后找出最大的几个那就是背景概率值最小的了，
+    #但是这里需要筛选，那么我们就想办法，让属于前景类样本被预测为背景值永远大于背景类样本，如此，便可以直接对所有样本找背景概率值最小的那几个即可完成硬负采样任务
     batch, in_depth, in_height, in_width, in_channels = [int(d) for d in input_gt.get_shape()]#取出各维度大小
-    data = pred[:, :, :, :, 0]  # 将输出结果属于背景的拎出来，因为需要它生成mask
-    pred_back_ground_data = tf.reshape(data, (batch, in_depth * in_height * in_width))  # 把数据按照batch为维度进行展开
+    pred_data = pred[:, :, :, :, 0]  # 将输出结果属于背景的拎出来，因为需要它生成mask
+    gt_backgound_data=1-input_gt[:, :, :, :, 0]#这样标签中原本属于背景类的全部为0，原本属于前景类的全部为1
+    pred_back_ground_data = tf.reshape(pred_data, (batch, in_depth * in_height * in_width))  # 把数据按照batch为维度进行展开
+    gt_back_ground_data=tf.reshape(gt_backgound_data, (batch, in_depth * in_height * in_width))#对GT进行reshape
+    new_pred_data=pred_back_ground_data+gt_back_ground_data#这样预测结果中，标签属于前景类的预测值被加一，标签属于背景类的元素值不变，
+    #这样新产生的预测结果中属于前景类标签所产生的概率值一定大于背景类
     mask = []
     for i in range(batch):
-        gti = pred_back_ground_data[i, :]  # 取出一个批次的数据
-        max_k_number, index = tf.nn.top_k(gti, save_back_ground_num)  # 找出最大的前k个硬负样本
+        gti = -1*new_pred_data[i, :]  # 取出一个批次的数据 ，由于取了反，
+        #这样子背景类的预测概率值一定大于前景类，并且原本预测概率值较小的背景类此时由于取了反有更大值
+        max_k_number, index = tf.nn.top_k(gti, save_back_ground_num)  # 找出最大的前k个值，这里也就是找出了硬负样本
         max_k = tf.reduce_min(max_k_number)  # 找出第k大值
         one = tf.ones_like(gti)  # 全1掩码
         zero = tf.zeros_like(gti)  # 全0掩码
@@ -392,6 +401,7 @@ def exist_background(input_gt, pred,save_back_ground_num):
     mask = tf.expand_dims(mask, -1)  # -1表示最后一维，这是生成针对背景的掩码
     other_mask = tf.ones([batch, in_depth, in_height, in_width, in_channels - 1], tf.float32)  # 其他维补充上来
     full_mask = tf.concat([mask, other_mask], 4)  # 形成丢弃背景信息的掩码
+
     input_gt = full_mask * input_gt  # 形成丢弃背景信息的groundtruth
     return input_gt
 
