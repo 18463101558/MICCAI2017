@@ -48,11 +48,12 @@ def Unsample(input, output_chn, name):
 
 def deconv_bn_relu(input, output_chn, is_training, name):
     with tf.variable_scope(name):
-        conv = Deconv3d(input, output_chn, name='deconv')
-        # with tf.device("/cpu:0"):
-        bn = tf.contrib.layers.batch_norm(conv, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True, is_training=is_training, scope="batch_norm")
+        bn = tf.contrib.layers.batch_norm(input, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True, is_training=is_training, scope="batch_norm")
         relu = tf.nn.relu(bn, name='relu')
-    return relu
+        conv = Deconv3d(relu, output_chn, name='deconv')
+        # with tf.device("/cpu:0"):
+
+    return conv
 
 def conv_bn_relu_x3(input, output_chn, kernel_size, stride, use_bias, is_training, name):
     with tf.variable_scope(name):

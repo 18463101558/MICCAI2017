@@ -2,24 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c2ca0aa0-9b83-4fec-9393-0ebc35de787f" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556329226.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556517799.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556546785.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556546900.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556546998.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556547123.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556547404.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556547485.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556547570.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556941989.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556942659.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556958038.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1556963470.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1557032588.amax-desktop" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1557110125.amax-desktop" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1557629714.amax-desktop" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/logs/events.out.tfevents.1557629756.amax-desktop" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/model.py" afterPath="$PROJECT_DIR$/src/model.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils.py" afterPath="$PROJECT_DIR$/src/utils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ops.py" afterPath="$PROJECT_DIR$/src/ops.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/train.log" afterPath="$PROJECT_DIR$/src/train.log" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -34,31 +22,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="checkpoint" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/outcome/model/checkpoint/1_96_-1/checkpoint">
+      <file leaf-file-name="tr_param.ini" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="56">
-              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+            <state relative-caret-position="616">
+              <caret line="22" column="20" lean-forward="false" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="train.log" pinned="false" current-in-tab="true">
+      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="532">
+              <caret line="204" column="17" lean-forward="false" selection-start-line="204" selection-start-column="17" selection-end-line="204" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="train.log" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/train.log">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="28">
-              <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="checkpoint" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/final/checkpoint">
+      <file leaf-file-name="ops.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ops.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="56">
-              <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+            <state relative-caret-position="140">
+              <caret line="7" column="75" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="80" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cliquenet.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/cliquenet.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -97,11 +105,11 @@
         <option value="$PROJECT_DIR$/src/loss.txt" />
         <option value="$PROJECT_DIR$/outcome/finalmodel/test.log" />
         <option value="$PROJECT_DIR$/src/ops.py" />
-        <option value="$PROJECT_DIR$/src/model.py" />
         <option value="$PROJECT_DIR$/src/utils.py" />
-        <option value="$PROJECT_DIR$/src/train.log" />
-        <option value="$PROJECT_DIR$/outcome/model/ini/tr_param.ini" />
         <option value="$PROJECT_DIR$/outcome/model/checkpoint/1_96_-1/checkpoint" />
+        <option value="$PROJECT_DIR$/outcome/model/ini/tr_param.ini" />
+        <option value="$PROJECT_DIR$/src/model.py" />
+        <option value="$PROJECT_DIR$/src/train.log" />
       </list>
     </option>
   </component>
@@ -112,8 +120,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="347" />
-    <option name="y" value="43" />
+    <option name="x" value="195" />
+    <option name="y" value="70" />
     <option name="width" value="1847" />
     <option name="height" value="1028" />
   </component>
@@ -150,20 +158,14 @@
               <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
               <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
               <item name="outcome" type="462c0819:PsiDirectoryNode" />
-              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
-              <item name="outcome" type="462c0819:PsiDirectoryNode" />
-              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
-              <item name="硬负采样" type="462c0819:PsiDirectoryNode" />
+              <item name="model" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
               <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
               <item name="outcome" type="462c0819:PsiDirectoryNode" />
               <item name="model" type="462c0819:PsiDirectoryNode" />
+              <item name="ini" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
@@ -270,7 +272,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="347" y="43" width="1847" height="1028" extended-state="0" />
+    <frame x="195" y="70" width="1847" height="1028" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -309,14 +311,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/fractalnet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1350">
-          <caret line="82" column="43" lean-forward="true" selection-start-line="82" selection-start-column="43" selection-end-line="82" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://E:/anaconda/envs/ycq/Lib/site-packages/tensorflow/python/framework/ops.py" />
     <entry file="file://$PROJECT_DIR$/outcome/model/ini/bak" />
     <entry file="file://$PROJECT_DIR$/src/logs/events.out.tfevents.1542942995.amax-desktop" />
@@ -510,33 +504,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ops.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="33">
-          <caret line="80" column="45" lean-forward="false" selection-start-line="80" selection-start-column="4" selection-end-line="80" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="68" column="29" lean-forward="false" selection-start-line="68" selection-start-column="13" selection-end-line="68" selection-end-column="36" />
-          <folding>
-            <element signature="e#23135#26674#0" expanded="false" />
-            <element signature="e#26730#27087#0" expanded="false" />
-            <element signature="e#27188#27503#0" expanded="false" />
-            <element signature="e#28218#28565#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="33" column="20" lean-forward="false" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -546,16 +519,8 @@
         <state relative-caret-position="1529">
           <caret line="385" column="48" lean-forward="false" selection-start-line="385" selection-start-column="39" selection-end-line="385" selection-end-column="48" />
           <folding>
-            <element signature="e#0#31#0" expanded="true" />
+            <element signature="e#0#31#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-28">
-          <caret line="14" column="49" lean-forward="true" selection-start-line="14" selection-start-column="49" selection-end-line="14" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -615,18 +580,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/final/checkpoint">
+    <entry file="file://$PROJECT_DIR$/src/train.log">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        <state relative-caret-position="28">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/train.log">
+    <entry file="file://$PROJECT_DIR$/src/cliquenet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28">
-          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ops.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="75" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="80" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="532">
+          <caret line="204" column="17" lean-forward="false" selection-start-line="204" selection-start-column="17" selection-end-line="204" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/final/checkpoint">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="616">
+          <caret line="22" column="20" lean-forward="false" selection-start-line="22" selection-start-column="20" selection-end-line="22" selection-end-column="20" />
           <folding />
         </state>
       </provider>
