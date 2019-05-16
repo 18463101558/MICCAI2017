@@ -143,72 +143,87 @@ class unet_3D_xy(object):
         keep_prob=0.8#控制drop率
 
         conv1_1 = conv3d(input=inputI, output_chn=64, kernel_size=3, stride=1, use_bias=False, name='conv1')
-        print("conv1_1:", conv1_1.shape)# pool1 (1, 96, 96, 96, 64)
+        #print("conv1_1:", conv1_1.shape)# pool1 (1, 96, 96, 96, 64)
+        conv1_1_relu=bn_relu(input=conv1_1 ,  is_training=phase_flag, name='conv1_relu')
+        pool1= tf.layers.max_pooling3d(inputs=conv1_1_relu, pool_size=2, strides=2, name='pool1')
+        #print("pool1:", pool1.shape)# pool1 (1, 48, 48, 48, 64)
 
-        pool1= tf.layers.max_pooling3d(inputs=conv1_1, pool_size=2, strides=2, name='pool1')
-        print("pool1:", pool1.shape)# pool1 (1, 48, 48, 48, 64)
-        conv2_1 = clique_block(pool1, channels_per_layer=64, outchannel=128,layer_num=layer_num, is_train=phase_flag,
+        pool1_short = conv3d(pool1, 64, kernel_size=1, stride=1, use_bias=False, name='pool1_short')
+        conv2_1 = clique_block(pool1_short, channels_per_layer=64, outchannel=128,layer_num=layer_num, is_train=phase_flag,
                                                     keep_prob=keep_prob, block_name='b' + str(1))#注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("conv2_1:",conv2_1.shape)#(1, 48, 48, 48, 128)
+        #conv2_1=conv2_1+pool1_short
+        conv2_1_relu=bn_relu(input=conv2_1 ,  is_training=phase_flag, name='conv2_relu')
+        #print("conv2_1:",conv2_1.shape)#(1, 48, 48, 48, 128)
+        pool2 = tf.layers.max_pooling3d(inputs=conv2_1_relu, pool_size=2, strides=2, name='pool2')
+        # print("pool2:", pool2.shape)#pool2  (1, 24, 24, 24, 128)
 
-        pool2 = tf.layers.max_pooling3d(inputs=conv2_1, pool_size=2, strides=2, name='pool2')
-        print("pool2:", pool2.shape)#pool2  (1, 24, 24, 24, 128)
-        conv3_1 = clique_block(pool2, channels_per_layer=128, outchannel=256,layer_num=layer_num, is_train=phase_flag,
+        pool2_short = conv3d(pool2,128, kernel_size=1, stride=1, use_bias=False, name='pool2_short')
+        conv3_1 = clique_block(pool2_short, channels_per_layer=128, outchannel=256,layer_num=layer_num, is_train=phase_flag,
                                                     keep_prob=keep_prob, block_name='b' + str(2))#注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("conv3_1:", conv3_1.shape)#(1, 24, 24, 24, 256)
+        #conv3_1= conv3_1+pool2_short
+        #print("conv3_1:", conv3_1.shape)#(1, 24, 24, 24, 256)
+        conv3_1_relu = bn_relu(input=conv3_1, is_training=phase_flag, name='conv3_relu')
+        pool3 = tf.layers.max_pooling3d(inputs=conv3_1_relu, pool_size=2, strides=2, name='pool3')
 
-
-        pool3 = tf.layers.max_pooling3d(inputs=conv3_1, pool_size=2, strides=2, name='pool3')
-        print("pool3:", pool3.shape)# (1, 12, 12,12, 256)
-        conv4_1 = clique_block(pool3, channels_per_layer=256,outchannel=512, layer_num=layer_num, is_train=phase_flag,
+        pool3_short = conv3d(pool3, 256, kernel_size=1, stride=1, use_bias=False, name='pool3_short')
+        #print("pool3:", pool3.shape)# (1, 12, 12,12, 256)
+        conv4_1 = clique_block(pool3_short, channels_per_layer=256,outchannel=512, layer_num=layer_num, is_train=phase_flag,
                                keep_prob=keep_prob, block_name='b' + str(3))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("conv4_1:", conv4_1.shape)# (1, 12, 12,12, 512)
+        #conv4_1=conv4_1+pool3_short
+        #print("conv4_1:", conv4_1.shape)# (1, 12, 12,12, 512)
+        conv4_1_relu = bn_relu(input=conv4_1, is_training=phase_flag, name='conv4_relu')
+        pool4 = tf.layers.max_pooling3d(inputs=conv4_1_relu, pool_size=2, strides=2, name='pool4')
+        #print("pool4:", pool4.shape)#pool4 (1, 6, 6, 6, 512)
 
-        pool4 = tf.layers.max_pooling3d(inputs=conv4_1, pool_size=2, strides=2, name='pool4')
-        print("pool4:", pool4.shape)#pool4 (1, 6, 6, 6, 512)
-        conv5_1 = clique_block(pool4, channels_per_layer=512,outchannel=512, layer_num=layer_num, is_train=phase_flag,
+        pool4_short = conv3d(pool4, 512, kernel_size=1, stride=1, use_bias=False, name='pool4_short')
+        conv5_1 = clique_block(pool4_short, channels_per_layer=512,outchannel=512, layer_num=layer_num, is_train=phase_flag,
                                keep_prob=keep_prob, block_name='b' + str(4))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("conv5_1:", conv5_1.shape)#conv5_1(1, 6, 6, 6, 512)
+        conv5_1=pool4_short+conv5_1
+        #print("conv5_1:", conv5_1.shape)#conv5_1(1, 6, 6, 6, 512)
 
-        deconv1_1 = deconv_bn_relu(input=conv5_1, output_chn=512, is_training=phase_flag, name='deconv1_1')#注意BN在前面，CONV在最后面
-        print("deconv1_1:", deconv1_1.shape)#(1, 12, 12, 12, 512)
+        deconv1_1 =  bn_relu_deconv(input=conv5_1, output_chn=512, is_training=phase_flag, name='deconv1_1')#注意BN在前面，CONV在最后面
+        #print("deconv1_1:", deconv1_1.shape)#(1, 12, 12, 12, 512)
         concat_1 = tf.concat([deconv1_1, conv4_1], axis=concat_dim, name='concat_1')
-        print("concat_1:", concat_1.shape)#(1, 12, 12, 12, 1024)
-
-        concat_1=conv3d(concat_1, 256, kernel_size=1, stride=1, use_bias=False, name='concat_1_short')
-        deconv1_2 = clique_block(concat_1, channels_per_layer=256,outchannel=256, layer_num=layer_num, is_train=phase_flag,
+        #print("concat_1:", concat_1.shape)#(1, 12, 12, 12, 1024)
+        concat_1_short=conv3d(concat_1, 256, kernel_size=1, stride=1, use_bias=False, name='concat_1_short')
+        concat_1_relu= bn_relu(input=concat_1_short, is_training=phase_flag, name='concat_1_relu')
+        deconv1_2 = clique_block(concat_1_relu, channels_per_layer=256,outchannel=256, layer_num=layer_num, is_train=phase_flag,
                                keep_prob=keep_prob, block_name='b' + str(5))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("deconv1_2:", deconv1_2.shape)# (1, 12, 12, 12, 256)
+        deconv1_2=deconv1_2+concat_1_relu
+        #print("deconv1_2:", deconv1_2.shape)# (1, 12, 12, 12, 256)
 
-        deconv2_1 = deconv_bn_relu(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')
-        print("deconv2_1:", deconv2_1.shape)#deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
+        deconv2_1 =  bn_relu_deconv(input=deconv1_2, output_chn=256, is_training=phase_flag, name='deconv2_1')
+        #print("deconv2_1:", deconv2_1.shape)#deconv2_1 (1, 24, 24, 24, 256) 这个家伙会把通道数量增加
         concat_2 = tf.concat([deconv2_1, conv3_1], axis=concat_dim, name='concat_2')
-        print("concat_2 :", concat_2 .shape)#concat_2 (1, 24, 24, 24, 512)
-        concat_2 = conv3d( concat_2, 128, kernel_size=1, stride=1, use_bias=False, name='concat_2_short' )
-        deconv2_2 = clique_block(concat_2, channels_per_layer=128,outchannel=128, layer_num=layer_num, is_train=phase_flag,
+        #print("concat_2 :", concat_2 .shape)#concat_2 (1, 24, 24, 24, 512)
+        concat_2_relu = bn_relu( input=concat_2, is_training=phase_flag, name='concat_2_relu' )
+        concat_2_short = conv3d( concat_2_relu, 128, kernel_size=1, stride=1, use_bias=False, name='concat_2_short' )
+
+        deconv2_2 = clique_block(concat_2_short, channels_per_layer=128,outchannel=128, layer_num=layer_num, is_train=phase_flag,
                                keep_prob=keep_prob, block_name='b' + str(6))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("deconv2_2:", deconv2_2.shape)#deconv2_2 (1, 24, 24, 24, 128)
+        deconv2_2=deconv2_2 + concat_2_short
+        #print("deconv2_2:", deconv2_2.shape)#deconv2_2 (1, 24, 24, 24, 128)
 
-        deconv3_1 = deconv_bn_relu(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')
-        print("deconv3_1:", deconv3_1.shape)# deconv3_1 (1, 48, 48, 48, 128)
+        deconv3_1 =  bn_relu_deconv(input=deconv2_2, output_chn=128, is_training=phase_flag, name='deconv3_1')
+        #print("deconv3_1:", deconv3_1.shape)# deconv3_1 (1, 48, 48, 48, 128)
         concat_3 = tf.concat([deconv3_1, conv2_1], axis=concat_dim, name='concat_3')
-        print("concat_3:", concat_3.shape)# concat_3(1, 48, 48, 48, 256)
-        concat_3 = conv3d( concat_3, 64, kernel_size=1, stride=1, use_bias=False, name='concat_3_short' )
-        deconv3_2 = clique_block(concat_3, channels_per_layer=64,outchannel=64, layer_num=layer_num, is_train=phase_flag,
+        #print("concat_3:", concat_3.shape)# concat_3(1, 48, 48, 48, 256)
+        concat_3_relu = bn_relu( input=concat_3, is_training=phase_flag, name='concat_3_relu' )
+        concat_3_short = conv3d( concat_3_relu, 64, kernel_size=1, stride=1, use_bias=False, name='concat_3_short' )
+        deconv3_2 = clique_block(concat_3_short , channels_per_layer=64,outchannel=64, layer_num=layer_num, is_train=phase_flag,
                                keep_prob=keep_prob, block_name='b' + str(7))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        print("deconv3_2:",deconv3_2.shape)#deconv3_2 (1, 48, 48, 48, 64)
+        deconv3_2= deconv3_2+concat_3_short
+        #print("deconv3_2:",deconv3_2.shape)#deconv3_2 (1, 48, 48, 48, 64)
 
-        deconv4_1 = deconv_bn_relu(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')
-        print("deconv4_1:", deconv4_1.shape)#deconv4_2 (1, 96, 96, 96, 64)
+        deconv4_1 =  bn_relu_deconv(input=deconv3_2, output_chn=64, is_training=phase_flag, name='deconv4_1')
+        #print("deconv4_1:", deconv4_1.shape)#deconv4_2 (1, 96, 96, 96, 64)
         concat_4 = tf.concat([deconv4_1, conv1_1], axis=concat_dim, name='concat_4')
-        print(" concat_4:",  concat_4.shape)# deconv4_2 (1, 96, 96, 96,128)
-        deconv4_2 = conv3d( concat_4, 32, kernel_size=1, stride=1, use_bias=False, name='concat_4_short' )
-        # deconv4_2 = clique_block(concat_4, channels_per_layer=32, outchannel=32, layer_num=layer_num,
-        #                          is_train=phase_flag,
-        #                          keep_prob=keep_prob, block_name='b' + str(8))  # 注意输入的是卷积后的结果，输出也是卷积后的结果
-        # print("deconv4_2:", deconv4_2.shape)  # deconv4_2 (1, 96, 96, 96, 32)
-        deconv4_2_bn = tf.contrib.layers.batch_norm(deconv4_2, decay=0.9, updates_collections=None, epsilon=1e-5, scale=True, is_training=phase_flag, scope="batch_norm")
-        deconv4_2_relu = tf.nn.relu(deconv4_2_bn, name='relu')
+        deconv4_1_relu = bn_relu( input=concat_4, is_training=phase_flag, name='deconv4_1_relu' )
+        #print(" concat_4:",  concat_4.shape)# deconv4_2 (1, 96, 96, 96,128)
+        deconv4_2 = conv3d(deconv4_1_relu, 32, kernel_size=1, stride=1, use_bias=False, name='concat_4_short' )
+
+        deconv4_2_relu = bn_relu(input=deconv4_2, is_training=phase_flag, name='deconv4_2_relu')
+
         pre_pro = conv3d(input=deconv4_2_relu, output_chn=self.output_chn, kernel_size=1, stride=1, use_bias=True, name='pre_pro')
 
         pred_prob= pre_pro#pred_prob (1, 96, 96, 96, 8) 注意在这里生成了最终预测
