@@ -4,7 +4,7 @@
     <list default="true" id="c2ca0aa0-9b83-4fec-9393-0ebc35de787f" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/model.py" afterPath="$PROJECT_DIR$/src/model.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ops.py" afterPath="$PROJECT_DIR$/src/ops.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test.log" afterPath="$PROJECT_DIR$/src/test.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/train.log" afterPath="$PROJECT_DIR$/src/train.log" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,28 +23,90 @@
       <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4480">
-              <caret line="171" column="9" lean-forward="false" selection-start-line="171" selection-start-column="9" selection-end-line="171" selection-end-column="9" />
+            <state relative-caret-position="578">
+              <caret line="445" column="22" lean-forward="false" selection-start-line="445" selection-start-column="22" selection-end-line="445" selection-end-column="22" />
+              <folding>
+                <element signature="e#18961#23319#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="checkpoint" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/outcome/model/checkpoint/1_96_-1/checkpoint">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="56">
+              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tr_param.ini" pinned="false" current-in-tab="true">
+      <file leaf-file-name="checkpoint" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/0.005/checkpoint/1_96_-1/checkpoint">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.log" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test.log">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="28">
+              <caret line="1" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tr_param.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="22" column="21" lean-forward="false" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
+            <state relative-caret-position="-112">
+              <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="train.log" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/train.log">
+        <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/train.log">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="train.log" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/0.005/train.log">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="112">
-              <caret line="4" column="29" lean-forward="true" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="29" />
+              <caret line="4" column="84" lean-forward="false" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="84" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="565">
+              <caret line="42" column="21" lean-forward="false" selection-start-line="42" selection-start-column="18" selection-end-line="42" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="train.log" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/train.log">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="28">
+              <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -55,25 +117,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="407">
               <caret line="53" column="4" lean-forward="false" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
-              <folding>
-                <marker date="1557721862000" expanded="true" signature="4005:4158" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="4160:4221" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="4283:4760" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="4827:5395" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="5436:5620" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="5664:5831" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="5848:5999" ph="..." />
-                <marker date="1557721862000" expanded="true" signature="6026:6361" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cliquenet.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cliquenet.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-252">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -113,10 +156,12 @@
         <option value="$PROJECT_DIR$/outcome/finalmodel/test.log" />
         <option value="$PROJECT_DIR$/src/ops.py" />
         <option value="$PROJECT_DIR$/src/utils.py" />
+        <option value="$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/0.005/train.log" />
+        <option value="$PROJECT_DIR$/outcome/model/ini/tr_param.ini" />
+        <option value="$PROJECT_DIR$/src/test.log" />
+        <option value="$PROJECT_DIR$/src/model.py" />
         <option value="$PROJECT_DIR$/outcome/model/checkpoint/1_96_-1/checkpoint" />
         <option value="$PROJECT_DIR$/src/train.log" />
-        <option value="$PROJECT_DIR$/src/model.py" />
-        <option value="$PROJECT_DIR$/outcome/model/ini/tr_param.ini" />
       </list>
     </option>
   </component>
@@ -127,8 +172,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="73" />
-    <option name="y" value="37" />
+    <option name="x" value="171" />
+    <option name="y" value="44" />
     <option name="width" value="1810" />
     <option name="height" value="1028" />
   </component>
@@ -148,7 +193,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -178,6 +222,40 @@
               <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
               <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
               <item name="outcome" type="462c0819:PsiDirectoryNode" />
+              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
+              <item name="跳跃连接cliquenet" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
+              <item name="outcome" type="462c0819:PsiDirectoryNode" />
+              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
+              <item name="跳跃连接cliquenet" type="462c0819:PsiDirectoryNode" />
+              <item name="0.005" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
+              <item name="outcome" type="462c0819:PsiDirectoryNode" />
+              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
+              <item name="跳跃连接cliquenet" type="462c0819:PsiDirectoryNode" />
+              <item name="0.005" type="462c0819:PsiDirectoryNode" />
+              <item name="checkpoint" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
+              <item name="outcome" type="462c0819:PsiDirectoryNode" />
+              <item name="frac复现" type="462c0819:PsiDirectoryNode" />
+              <item name="跳跃连接cliquenet" type="462c0819:PsiDirectoryNode" />
+              <item name="0.005" type="462c0819:PsiDirectoryNode" />
+              <item name="checkpoint" type="462c0819:PsiDirectoryNode" />
+              <item name="1_96_-1" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
+              <item name="outcome" type="462c0819:PsiDirectoryNode" />
               <item name="model" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -186,6 +264,14 @@
               <item name="outcome" type="462c0819:PsiDirectoryNode" />
               <item name="model" type="462c0819:PsiDirectoryNode" />
               <item name="checkpoint" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MICCAI2017" type="462c0819:PsiDirectoryNode" />
+              <item name="outcome" type="462c0819:PsiDirectoryNode" />
+              <item name="model" type="462c0819:PsiDirectoryNode" />
+              <item name="checkpoint" type="462c0819:PsiDirectoryNode" />
+              <item name="1_96_-1" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="MICCAI2017" type="b2602c69:ProjectViewProjectNode" />
@@ -203,6 +289,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -300,7 +387,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="73" y="37" width="1810" height="1028" extended-state="0" />
+    <frame x="171" y="44" width="1810" height="1028" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -310,7 +397,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13936292" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1410694" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -339,9 +426,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/outcome/model/ini/bak" />
-    <entry file="file://$PROJECT_DIR$/src/logs/events.out.tfevents.1542942995.amax-desktop" />
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/frac位于上采样/train.log" />
     <entry file="file://$PROJECT_DIR$/outcome/论文复现/tr_param.ini" />
     <entry file="file://$PROJECT_DIR$/outcome/frac复现/frac位于上采样/model/ini/tr_param.ini" />
     <entry file="file://$PROJECT_DIR$/outcome/frac复现/frac在路径中央/train.log" />
@@ -474,13 +558,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28">
-          <caret line="1" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/loss.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -531,16 +608,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="33" column="20" lean-forward="false" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#9#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1529">
@@ -551,43 +618,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_1000/checkpoint">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_2000/checkpoint">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_14000/checkpoint">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/checkpoint/1_96_10000/checkpoint">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_1000/checkpoint" />
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_2000/checkpoint" />
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/attention/1_96_14000/checkpoint" />
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/checkpoint/1_96_10000/checkpoint" />
     <entry file="file://$PROJECT_DIR$/outcome/frac复现/seblock/checkpoint/1_96_3000/checkpoint">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="56">
           <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -595,7 +633,72 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/final/checkpoint">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/model/checkpoint/1_96_1000/checkpoint" />
+    <entry file="file://$PROJECT_DIR$/src/cliquenet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ops.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="407">
+          <caret line="53" column="4" lean-forward="false" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/train.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/0.005/train.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="4" column="84" lean-forward="false" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="84" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="565">
+          <caret line="42" column="21" lean-forward="false" selection-start-line="42" selection-start-column="18" selection-end-line="42" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="445" column="22" lean-forward="false" selection-start-line="445" selection-start-column="22" selection-end-line="445" selection-end-column="22" />
+          <folding>
+            <element signature="e#18961#23319#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -607,40 +710,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/frac复现/硬负采样/final/checkpoint">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cliquenet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-252">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ops.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="53" column="4" lean-forward="false" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
-          <folding>
-            <marker date="1557721862000" expanded="true" signature="4005:4158" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="4160:4221" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="4283:4760" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="4827:5395" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="5436:5620" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="5664:5831" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="5848:5999" ph="..." />
-            <marker date="1557721862000" expanded="true" signature="6026:6361" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/model/checkpoint/1_96_1000/checkpoint">
+    <entry file="file://$PROJECT_DIR$/outcome/frac复现/跳跃连接cliquenet/0.005/checkpoint/1_96_-1/checkpoint">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -648,26 +718,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/model.py">
+    <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4480">
-          <caret line="171" column="9" lean-forward="false" selection-start-line="171" selection-start-column="9" selection-end-line="171" selection-end-column="9" />
+        <state relative-caret-position="-112">
+          <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/train.log">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="4" column="29" lean-forward="true" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/outcome/model/ini/tr_param.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="22" column="21" lean-forward="false" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
+        <state relative-caret-position="28">
+          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding />
         </state>
       </provider>
